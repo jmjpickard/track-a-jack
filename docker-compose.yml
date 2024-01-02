@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  database:
+    image: postgres:14.2
+    restart: always
+    expose:
+      - "5442"
+    ports:
+      - "5442:5442"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - track-a-jack-pgsql:/var/lib/postgresql/data
+    networks:
+      - skynet
+    command: -p 5442
+volumes:
+  track-a-jack-pgsql:
+    driver: local
+networks:
+  skynet:
+    name: track-a-jack
