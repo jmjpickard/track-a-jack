@@ -28,28 +28,28 @@ export const WeekView: React.FC = () => {
 
   const [showSave, setShowSave] = React.useState(false);
   const { startDate, endDate } = getStartAndEndDate(year, weekOfYear);
-  const addOneWeek = () => {
+  const addOneWeek = async () => {
     if (weekOfYear === 52) {
       setWeekOfYear(1);
       setYear(year + 1);
     } else {
       setWeekOfYear(weekOfYear + 1);
     }
-    refetch();
+    await refetch();
   };
 
-  const subtractOneWeek = () => {
+  const subtractOneWeek = async () => {
     if (weekOfYear === 1) {
       setWeekOfYear(52);
       setYear(year - 1);
     } else {
       setWeekOfYear(weekOfYear - 1);
     }
-    refetch();
+    await refetch();
   };
 
   const addExercise = api.post.addExercise.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: async () => await refetch(),
   });
 
   const [running, setRunning] = React.useState<number>();
@@ -65,33 +65,33 @@ export const WeekView: React.FC = () => {
       onSuccess: (response) => {
         setRunning(
           response?.find((d) => d.type === EXERCISE_TYPE.RUNNING)?._sum
-            .amount || 0,
+            .amount ?? 0,
         );
         setPushups(
           response?.find((d) => d.type === EXERCISE_TYPE.PUSH_UPS)?._sum
-            .amount || 0,
+            .amount ?? 0,
         );
         setSitups(
           response?.find((d) => d.type === EXERCISE_TYPE.SIT_UPS)?._sum
-            .amount || 0,
+            .amount ?? 0,
         );
       },
     },
   );
 
-  const saveExercises = () => {
+  const saveExercises = async () => {
     const runningStateDiff = findDiff(EXERCISE_TYPE.RUNNING, running);
 
     const pushupsStateDiff = findDiff(EXERCISE_TYPE.PUSH_UPS, pushups);
 
     const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
-    [
+    const promises = [
       { type: EXERCISE_TYPE.RUNNING, amount: runningStateDiff, unit: "km" },
       { type: EXERCISE_TYPE.PUSH_UPS, amount: pushupsStateDiff, unit: "reps" },
       { type: EXERCISE_TYPE.SIT_UPS, amount: situpsStateDiff, unit: "reps" },
-    ].forEach(({ type, amount, unit }) => {
+    ].map(async ({ type, amount, unit }) => {
       if (amount) {
-        addExercise.mutateAsync({
+        await addExercise.mutateAsync({
           type,
           amount,
           unit,
@@ -100,11 +100,12 @@ export const WeekView: React.FC = () => {
         });
       }
     });
+    await Promise.all(promises);
   };
 
   const findDiff = (type: EXERCISE_TYPE, state?: number) => {
     const dbValue = data?.find((d) => d.type === type)?._sum.amount;
-    return (state || 0) - (dbValue || 0);
+    return (state ?? 0) - (dbValue ?? 0);
   };
 
   React.useEffect(() => {
@@ -116,8 +117,8 @@ export const WeekView: React.FC = () => {
 
     console.log({ runningStateDiff, pushupsStateDiff, situpsStateDiff });
     if (
-      runningStateDiff !== 0 ||
-      pushupsStateDiff !== 0 ||
+      runningStateDiff !== 0 ??
+      pushupsStateDiff !== 0 ??
       situpsStateDiff !== 0
     ) {
       setShowSave(true);

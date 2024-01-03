@@ -26,8 +26,8 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
 }) => {
   const handleIncrement = (direction: "up" | "down") => {
     return direction === "up"
-      ? setValue((currentValue || 0) + 1)
-      : setValue((currentValue || 0) - 1);
+      ? setValue((currentValue ?? 0) + 1)
+      : setValue((currentValue ?? 0) - 1);
   };
   return (
     <Card>
@@ -39,7 +39,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
         <Button variant="secondary" onClick={() => handleIncrement("down")}>
           <MinusCircledIcon className="fill-red" />
         </Button>
-        <div>{currentValue || 0}</div>
+        <div>{currentValue ?? 0}</div>
         <Button variant="secondary" onClick={() => handleIncrement("up")}>
           <PlusCircledIcon />
         </Button>
