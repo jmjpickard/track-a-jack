@@ -28,7 +28,7 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
-        <WeekView />
+        {isAuth && <WeekView />}
       </main>
     </>
   );
