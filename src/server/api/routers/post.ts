@@ -1,42 +1,58 @@
+import { EXERCISE_TYPE } from "@prisma/client";
 import { z } from "zod";
+import { getStartAndEndDate } from "~/components/WeekView";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const postRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
-  create: protectedProcedure
-    .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      return ctx.db.post.create({
+  addExercise: protectedProcedure
+    .input(
+      z.object({
+        type: z.enum([
+          EXERCISE_TYPE.PUSH_UPS,
+          EXERCISE_TYPE.RUNNING,
+          EXERCISE_TYPE.SIT_UPS,
+        ]),
+        amount: z.number(),
+        unit: z.string(),
+        week: z.number(),
+        year: z.number(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const row = ctx.db.exercise.create({
         data: {
-          name: input.name,
-          createdBy: { connect: { id: ctx.session.user.id } },
+          type: input.type,
+          amount: input.amount,
+          unit: input.unit,
+          week: input.week,
+          year: input.year,
+          createdById: userId,
         },
       });
+      return row;
     }),
-
-  getLatest: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.post.findFirst({
-      orderBy: { createdAt: "desc" },
-      where: { createdBy: { id: ctx.session.user.id } },
-    });
-  }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
+  getExerciseByWeek: protectedProcedure
+    .input(
+      z.object({
+        year: z.number(),
+        week: z.number(),
+      }),
+    )
+    .query(({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const calculation = ctx.db.exercise.groupBy({
+        by: ["type"],
+        _sum: {
+          amount: true,
+        },
+        where: {
+          createdById: userId,
+          week: input.week,
+          year: input.year,
+        },
+      });
+      return calculation;
+    }),
 });

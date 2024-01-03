@@ -13,7 +13,8 @@ export interface ExerciseItemProps {
   title: string;
   subTitle: string;
   type: EXERCISE_TYPE;
-  currentValue: number;
+  currentValue?: number;
+  setValue: (value: number) => void;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
@@ -21,7 +22,13 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   subTitle,
   type,
   currentValue,
+  setValue,
 }) => {
+  const handleIncrement = (direction: "up" | "down") => {
+    return direction === "up"
+      ? setValue((currentValue || 0) + 1)
+      : setValue((currentValue || 0) - 1);
+  };
   return (
     <Card>
       <CardHeader>
@@ -29,11 +36,11 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
         <CardDescription>{subTitle}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-row items-center gap-10">
-        <Button variant="secondary">
+        <Button variant="secondary" onClick={() => handleIncrement("down")}>
           <MinusCircledIcon className="fill-red" />
         </Button>
-        <div>{currentValue}</div>
-        <Button variant="secondary">
+        <div>{currentValue || 0}</div>
+        <Button variant="secondary" onClick={() => handleIncrement("up")}>
           <PlusCircledIcon />
         </Button>
       </CardContent>
