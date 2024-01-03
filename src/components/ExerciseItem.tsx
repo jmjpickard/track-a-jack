@@ -7,7 +7,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EXERCISE_TYPE } from "@prisma/client";
-import { MinusCircledIcon, PlusCircledIcon } from "@radix-ui/react-icons";
+import {
+  MinusCircledIcon,
+  PlusCircledIcon,
+  ReloadIcon,
+} from "@radix-ui/react-icons";
 
 export interface ExerciseItemProps {
   title: string;
@@ -15,6 +19,7 @@ export interface ExerciseItemProps {
   type: EXERCISE_TYPE;
   currentValue?: number;
   setValue: (value: number) => void;
+  loading: boolean;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
@@ -23,6 +28,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   type,
   currentValue,
   setValue,
+  loading,
 }) => {
   const handleIncrement = (direction: "up" | "down") => {
     return direction === "up"
@@ -39,7 +45,11 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
         <Button variant="secondary" onClick={() => handleIncrement("down")}>
           <MinusCircledIcon className="fill-red" />
         </Button>
-        <div>{currentValue ?? 0}</div>
+        {loading ? (
+          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <div>{currentValue ?? 0}</div>
+        )}
         <Button variant="secondary" onClick={() => handleIncrement("up")}>
           <PlusCircledIcon />
         </Button>
