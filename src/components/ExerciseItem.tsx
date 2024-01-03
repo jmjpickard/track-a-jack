@@ -20,6 +20,7 @@ export interface ExerciseItemProps {
   currentValue?: number;
   setValue: (value: number) => void;
   loading?: boolean;
+  target: number;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
@@ -29,17 +30,24 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   currentValue,
   setValue,
   loading,
+  target,
 }) => {
   const handleIncrement = (direction: "up" | "down") => {
     return direction === "up"
       ? setValue((currentValue ?? 0) + 1)
       : setValue((currentValue ?? 0) - 1);
   };
+  const pctCompleteNoDecimalPlaces = Math.floor(
+    ((currentValue ?? 0) / target) * 100,
+  );
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{subTitle}</CardDescription>
+      <CardHeader className="flex flex-row justify-between ">
+        <div>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{subTitle}</CardDescription>
+        </div>
+        <div>{pctCompleteNoDecimalPlaces}%</div>
       </CardHeader>
       <CardContent className="flex flex-row items-center gap-10">
         <Button variant="secondary" onClick={() => handleIncrement("down")}>

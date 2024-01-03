@@ -77,7 +77,10 @@ export const WeekView: React.FC = () => {
   };
 
   const addExercise = api.post.addExercise.useMutation({
-    onSuccess: async () => await refetch(),
+    onSuccess: async () => {
+      await refetch();
+      setShowSave(false);
+    },
   });
 
   const [running, setRunning] = React.useState<number>();
@@ -162,6 +165,7 @@ export const WeekView: React.FC = () => {
       currentValue: running,
       setValue: setRunning,
       loading: isLoading,
+      target: 12,
     },
     {
       title: "Pushups",
@@ -170,6 +174,7 @@ export const WeekView: React.FC = () => {
       currentValue: pushups,
       setValue: setPushups,
       loading: isLoading,
+      target: 200,
     },
     {
       title: "Situps",
@@ -178,6 +183,7 @@ export const WeekView: React.FC = () => {
       currentValue: situps,
       setValue: setSitups,
       loading: isLoading,
+      target: 200,
     },
   ];
 
