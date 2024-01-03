@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import weekOfYear from "dayjs/plugin/weekOfYear";
 import React from "react";
 import {
   FilePlusIcon,
@@ -11,19 +10,48 @@ import { ExerciseItem, ExerciseItemProps } from "./ExerciseItem";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { api } from "~/utils/api";
 
-dayjs.extend(weekOfYear);
+const getMonday = (date: Date) => {
+  const day = date.getDay() || 7;
+  if (day !== 1) {
+    date.setHours(-24 * (day - 1));
+  }
+  return date;
+};
+
+const getSunday = (date: Date) => {
+  const day = date.getDay() || 7;
+  if (day !== 7) {
+    date.setHours(24 * (7 - day));
+  }
+  return date;
+};
+
+const getWeekNumber = (date: Date) => {
+  // Copy the date so we don't modify the original
+  const newDate = new Date(date);
+  // Set to the nearest Thursday: current date + 4 - current day number
+  newDate.setDate(newDate.getDate() + 4 - (newDate.getDay() || 7));
+  // Get the first day of the year
+  const yearStart = new Date(newDate.getFullYear(), 0, 1);
+  // Calculate full weeks to the nearest Thursday
+  const weekNumber = Math.ceil(
+    ((newDate.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
+  );
+  return weekNumber;
+};
 
 export const getStartAndEndDate = (year: number, weekNumber: number) => {
-  const startOfYear = dayjs(`01-01-${year}`);
-  const getRightWeek = startOfYear.add(weekNumber - 1, "week");
-  const startDate = getRightWeek.startOf("week").toDate();
-  const endDate = getRightWeek.endOf("week").toDate();
+  const weeks = weekNumber - 1;
+  const januaryFirst = new Date(`${year}-01-01`);
+  const addWeeks = januaryFirst.setDate(januaryFirst.getDate() + weeks * 7);
+  const startDate = getMonday(new Date(addWeeks));
+  const endDate = getSunday(new Date(addWeeks));
 
   return { startDate, endDate };
 };
 
 export const WeekView: React.FC = () => {
-  const [weekOfYear, setWeekOfYear] = React.useState(dayjs().week());
+  const [weekOfYear, setWeekOfYear] = React.useState(getWeekNumber(new Date()));
   const [year, setYear] = React.useState(dayjs().year());
 
   const [showSave, setShowSave] = React.useState(false);
@@ -115,7 +143,6 @@ export const WeekView: React.FC = () => {
 
     const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
 
-    console.log({ runningStateDiff, pushupsStateDiff, situpsStateDiff });
     if (
       runningStateDiff !== 0 ??
       pushupsStateDiff !== 0 ??
