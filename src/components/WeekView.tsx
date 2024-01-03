@@ -146,9 +146,11 @@ export const WeekView: React.FC = () => {
 
     const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
 
+    console.log({ runningStateDiff, pushupsStateDiff, situpsStateDiff });
+
     if (
-      runningStateDiff !== 0 ??
-      pushupsStateDiff !== 0 ??
+      runningStateDiff !== 0 ||
+      pushupsStateDiff !== 0 ||
       situpsStateDiff !== 0
     ) {
       setShowSave(true);
