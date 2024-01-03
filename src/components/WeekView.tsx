@@ -84,7 +84,7 @@ export const WeekView: React.FC = () => {
   const [pushups, setPushups] = React.useState<number>();
   const [situps, setSitups] = React.useState<number>();
 
-  const { data, refetch } = api.post.getExerciseByWeek.useQuery(
+  const { data, refetch, isLoading } = api.post.getExerciseByWeek.useQuery(
     {
       year,
       week: weekOfYear,
@@ -161,6 +161,7 @@ export const WeekView: React.FC = () => {
       type: EXERCISE_TYPE.RUNNING,
       currentValue: running,
       setValue: setRunning,
+      loading: isLoading,
     },
     {
       title: "Pushups",
@@ -168,6 +169,7 @@ export const WeekView: React.FC = () => {
       type: EXERCISE_TYPE.PUSH_UPS,
       currentValue: pushups,
       setValue: setPushups,
+      loading: isLoading,
     },
     {
       title: "Situps",
@@ -175,6 +177,7 @@ export const WeekView: React.FC = () => {
       type: EXERCISE_TYPE.SIT_UPS,
       currentValue: situps,
       setValue: setSitups,
+      loading: isLoading,
     },
   ];
 

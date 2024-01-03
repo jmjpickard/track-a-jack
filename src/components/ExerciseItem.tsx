@@ -19,7 +19,7 @@ export interface ExerciseItemProps {
   type: EXERCISE_TYPE;
   currentValue?: number;
   setValue: (value: number) => void;
-  loading: boolean;
+  loading?: boolean;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
