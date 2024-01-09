@@ -17,8 +17,8 @@ export const NavBar: React.FC = () => {
       {isAuth && (
         <>
           <Button variant="link" asChild>
-            <Link className="text-lg" href="/summary">
-              Summary
+            <Link className="text-lg" href="/track">
+              Track
             </Link>
           </Button>
           <UserNav />
