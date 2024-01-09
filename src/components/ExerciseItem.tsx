@@ -58,7 +58,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Input
-            type="number"
+            type="text"
             value={currentValue}
             onChange={(e) => setValue(parseInt(e.target.value))}
             className="w-16 text-center"
