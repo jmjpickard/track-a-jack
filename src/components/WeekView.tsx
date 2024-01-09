@@ -146,8 +146,6 @@ export const WeekView: React.FC = () => {
 
     const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
 
-    console.log({ runningStateDiff, pushupsStateDiff, situpsStateDiff });
-
     if (
       runningStateDiff !== 0 ||
       pushupsStateDiff !== 0 ||
@@ -190,7 +188,7 @@ export const WeekView: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 pb-16">
       <div className="flex flex-row content-center items-center gap-10">
         <Button onClick={subtractOneWeek}>
           <ThickArrowLeftIcon />
@@ -218,7 +216,7 @@ export const WeekView: React.FC = () => {
       {showSave && (
         <div
           onClick={saveExercises}
-          className="bg-green fixed bottom-0 left-0 right-0 flex cursor-pointer flex-col content-center items-center p-4 text-white transition-all duration-300"
+          className="fixed bottom-0 left-0 right-0 flex cursor-pointer flex-col content-center items-center bg-green p-4 text-white transition-all duration-300"
         >
           <div className="flex flex-row gap-3 text-xl">
             <div>{addExercise.isLoading ? "Loading..." : "Save"}</div>
