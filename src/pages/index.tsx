@@ -28,7 +28,16 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
-        {isAuth && <WeekView />}
+        {isAuth ? (
+          <WeekView />
+        ) : (
+          <div className="flex flex-col content-center items-center gap-5 p-16 text-center">
+            <div>12km</div>
+            <div>200 pushups</div>
+            <div>200 situps</div>
+            <div>Do this every week and feel better</div>
+          </div>
+        )}
       </main>
     </>
   );
