@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { EXERCISE_TYPE } from "@prisma/client";
 import {
   MinusCircledIcon,
@@ -56,7 +57,12 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
         {loading ? (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <div>{currentValue ?? 0}</div>
+          <Input
+            type="number"
+            value={currentValue}
+            onChange={(e) => setValue(parseInt(e.target.value))}
+            className="w-16 text-center"
+          />
         )}
         <Button variant="secondary" onClick={() => handleIncrement("up")}>
           <PlusCircledIcon />
