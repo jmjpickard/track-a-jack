@@ -48,7 +48,7 @@ export default function Track() {
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
         <div className="w-4/5">
-          {!isLoading && (
+          {!isLoading && data !== undefined && (
             <div className="flex flex-col gap-5">
               <div className="text-lg font-bold">Year</div>
               {Object.keys(data).map((type) => {
