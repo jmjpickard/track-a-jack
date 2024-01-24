@@ -59,8 +59,6 @@ export default function Track() {
                 const total = TARGETS[type as EXERCISE_TYPE];
                 const weekly = WEEKLY_TARGETS[type as EXERCISE_TYPE];
 
-                console.log(currentVal, total, weekly);
-
                 const current = Math.floor((currentVal / total) * 100);
                 const target = Math.floor(
                   ((weekly * currentWeek) / total) * 100,
