@@ -26,7 +26,7 @@ const getSunday = (date: Date) => {
   return date;
 };
 
-const getWeekNumber = (date: Date) => {
+export const getWeekNumber = (date: Date) => {
   // Copy the date so we don't modify the original
   const newDate = new Date(date);
   // Set to the nearest Thursday: current date + 4 - current day number

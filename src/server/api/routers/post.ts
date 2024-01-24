@@ -1,9 +1,14 @@
 import { EXERCISE_TYPE } from "@prisma/client";
+import { groupBy } from "lodash";
 import { z } from "zod";
 import { getStartAndEndDate } from "~/components/WeekView";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-
+type ExerciseData = {
+  _sum: { amount: number };
+  type: string;
+  week: number;
+};
 export const postRouter = createTRPCRouter({
   addExercise: protectedProcedure
     .input(
@@ -55,4 +60,19 @@ export const postRouter = createTRPCRouter({
       });
       return calculation;
     }),
+  allExerciseByWeek: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const calculation = await ctx.db.exercise.groupBy({
+      by: ["type", "week"],
+      _sum: {
+        amount: true,
+      },
+      where: {
+        createdById: userId,
+      },
+    });
+    const group = groupBy(calculation, "type");
+
+    return group;
+  }),
 });
