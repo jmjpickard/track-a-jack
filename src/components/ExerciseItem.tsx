@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { EXERCISE_TYPE } from "@prisma/client";
 import {
   MinusCircledIcon,
@@ -48,18 +49,18 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{subTitle}</CardDescription>
         </div>
-        <div>{pctCompleteNoDecimalPlaces}%</div>
+        <div className="flex flex-row items-center justify-center gap-5">
+          <Progress className="w-20" value={pctCompleteNoDecimalPlaces} />
+          <div>{pctCompleteNoDecimalPlaces}%</div>
+        </div>
       </CardHeader>
       <CardContent className="flex flex-row items-center gap-10">
         {loading ? (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <Input
-            type="number"
-            value={currentValue}
-            onChange={(e) => setValue(parseInt(e.target.value))}
-            className="w-16 text-center"
-          />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 text-white">
+            {currentValue}
+          </div>
         )}
         <Button
           className="flex flex-row gap-3"
