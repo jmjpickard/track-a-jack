@@ -53,7 +53,7 @@ export default function Track() {
               <div className="text-lg font-bold">Year</div>
               {Object.keys(data).map((type) => {
                 const typeData = data[type as EXERCISE_TYPE];
-                if (!typeData) return null;
+                if (!typeData) return;
                 const currentVal = typeData.reduce(
                   (acc, curr) => acc + (curr._sum.amount ?? 0),
                   0,
