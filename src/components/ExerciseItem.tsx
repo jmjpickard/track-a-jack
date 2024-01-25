@@ -49,6 +49,9 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
       ? "bg-emerald-400 transition-all"
       : "bg-gray-500";
 
+  const animation =
+    pctCompleteNoDecimalPlaces >= 100 ? "animate-celebration" : "";
+
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between ">
@@ -69,6 +72,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full text-white",
               numStyle,
+              animation,
             )}
           >
             {currentValue}
