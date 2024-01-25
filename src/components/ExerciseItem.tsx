@@ -45,11 +45,6 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   unit,
   saveExercise,
 }) => {
-  const handleIncrement = (direction: "up" | "down") => {
-    return direction === "up"
-      ? setValue((currentValue ?? 0) + 1)
-      : setValue((currentValue ?? 0) - 1);
-  };
   const pctCompleteNoDecimalPlaces = Math.floor(
     ((currentValue ?? 0) / target) * 100,
   );

@@ -43,6 +43,9 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
     }
     setValue(selectedVal);
   };
+  const handleConfirm = async () => {
+    await onConfirm(type, value, unit);
+  };
   console.log(value);
   return (
     <Drawer>
@@ -75,9 +78,7 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button onClick={() => onConfirm(type, value, unit)}>
-                Submit
-              </Button>
+              <Button onClick={handleConfirm}>Submit</Button>
             </DrawerClose>
           </DrawerFooter>
         </div>
