@@ -14,6 +14,7 @@ import {
   PlusCircledIcon,
   ReloadIcon,
 } from "@radix-ui/react-icons";
+import { ActivityDrawer } from "./ActivityDrawer";
 
 export interface ExerciseItemProps {
   title: string;
@@ -23,6 +24,9 @@ export interface ExerciseItemProps {
   setValue: (value: number) => void;
   loading?: boolean;
   target: number;
+  itemOptions: number[];
+  unit: string;
+  saveExercise: (type: EXERCISE_TYPE, amount: number, unit: string) => void;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
@@ -33,6 +37,9 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   setValue,
   loading,
   target,
+  itemOptions,
+  unit,
+  saveExercise,
 }) => {
   const handleIncrement = (direction: "up" | "down") => {
     return direction === "up"
@@ -42,6 +49,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   const pctCompleteNoDecimalPlaces = Math.floor(
     ((currentValue ?? 0) / target) * 100,
   );
+
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between ">
@@ -62,14 +70,14 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
             {currentValue}
           </div>
         )}
-        <Button
-          className="flex flex-row gap-3"
-          variant="secondary"
-          onClick={() => handleIncrement("up")}
-        >
-          <div>Log activity</div>
-          <PlusCircledIcon />
-        </Button>
+
+        <ActivityDrawer
+          type={type}
+          title={title}
+          options={itemOptions}
+          unit={unit}
+          onConfirm={saveExercise}
+        />
       </CardContent>
     </Card>
   );

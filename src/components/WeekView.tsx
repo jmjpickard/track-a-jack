@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { ExerciseItem, ExerciseItemProps } from "./ExerciseItem";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { api } from "~/utils/api";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import { camelCase, upperFirst } from "lodash";
 
 const getMonday = (date: Date) => {
   const day = date.getDay() || 7;
@@ -77,9 +80,13 @@ export const WeekView: React.FC = () => {
   };
 
   const addExercise = api.post.addExercise.useMutation({
-    onSuccess: async () => {
+    onMutate: () => toast.loading("Saving activity..."),
+    onSuccess: async (data) => {
       await refetch();
       setShowSave(false);
+      const { type, amount, unit } = data;
+      const typeFormat = upperFirst(camelCase(type));
+      toast.success(`${amount} ${unit} of ${typeFormat} added!`);
     },
   });
 
@@ -109,6 +116,20 @@ export const WeekView: React.FC = () => {
       },
     },
   );
+
+  const saveExercise = async (
+    type: EXERCISE_TYPE,
+    amount: number,
+    unit: string,
+  ) => {
+    await addExercise.mutateAsync({
+      type,
+      amount,
+      unit,
+      week: weekOfYear,
+      year,
+    });
+  };
 
   const saveExercises = async () => {
     const runningStateDiff = findDiff(EXERCISE_TYPE.RUNNING, running);
@@ -166,6 +187,9 @@ export const WeekView: React.FC = () => {
       setValue: setRunning,
       loading: isLoading,
       target: 12,
+      itemOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      unit: "km",
+      saveExercise,
     },
     {
       title: "Pushups",
@@ -175,6 +199,9 @@ export const WeekView: React.FC = () => {
       setValue: setPushups,
       loading: isLoading,
       target: 200,
+      itemOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      unit: "reps",
+      saveExercise,
     },
     {
       title: "Situps",
@@ -184,6 +211,9 @@ export const WeekView: React.FC = () => {
       setValue: setSitups,
       loading: isLoading,
       target: 200,
+      itemOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      unit: "reps",
+      saveExercise,
     },
   ];
 
@@ -224,6 +254,7 @@ export const WeekView: React.FC = () => {
           </div>
         </div>
       )}
+      <Toaster richColors position="top-right" />
     </div>
   );
 };
