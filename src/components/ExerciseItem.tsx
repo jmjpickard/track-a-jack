@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,15 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { EXERCISE_TYPE } from "@prisma/client";
-import {
-  MinusCircledIcon,
-  PlusCircledIcon,
-  ReloadIcon,
-} from "@radix-ui/react-icons";
+import { ReloadIcon } from "@radix-ui/react-icons";
 import { ActivityDrawer } from "./ActivityDrawer";
+import { cn } from "@/lib/utils";
 
 export interface ExerciseItemProps {
   title: string;
@@ -49,6 +44,11 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
     ((currentValue ?? 0) / target) * 100,
   );
 
+  const numStyle =
+    pctCompleteNoDecimalPlaces >= 100
+      ? "bg-emerald-400 transition-all"
+      : "bg-gray-500";
+
   return (
     <Card>
       <CardHeader className="flex flex-row justify-between ">
@@ -65,7 +65,12 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
         {loading ? (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 text-white">
+          <div
+            className={cn(
+              "flex h-12 w-12 items-center justify-center rounded-full text-white",
+              numStyle,
+            )}
+          >
             {currentValue}
           </div>
         )}
