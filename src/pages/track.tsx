@@ -1,4 +1,5 @@
 import { EXERCISE_TYPE } from "@prisma/client";
+import { camelCase, upperFirst } from "lodash";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -66,9 +67,11 @@ export default function Track() {
                   ((weekly * currentWeek) / total) * 100,
                 );
 
+                const typeFormat = upperFirst(camelCase(type));
+
                 return (
                   <div key={type}>
-                    <div>{type}</div>
+                    <div>{typeFormat}</div>
                     <ProgressDisplay
                       current={current}
                       target={target}
