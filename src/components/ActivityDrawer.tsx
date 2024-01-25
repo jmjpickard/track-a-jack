@@ -35,6 +35,15 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
   options,
   onConfirm,
 }: DrawerProps) => {
+  const [value, setValue] = React.useState(0);
+  const handleSelect = (selectedVal: number) => {
+    console.log(selectedVal);
+    if (value === selectedVal) {
+      setValue(0);
+    }
+    setValue(selectedVal);
+  };
+  console.log(value);
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -57,6 +66,7 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
                   value={String(num)}
                   aria-label={`Toggle ${num}`}
                   variant="default"
+                  onClick={() => handleSelect(num)}
                 >
                   {num}
                 </ToggleGroupItem>
@@ -65,7 +75,9 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button onClick={() => onConfirm(type, 1, unit)}>Submit</Button>
+              <Button onClick={() => onConfirm(type, value, unit)}>
+                Submit
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </div>
