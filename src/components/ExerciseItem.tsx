@@ -51,9 +51,6 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
         <div>{pctCompleteNoDecimalPlaces}%</div>
       </CardHeader>
       <CardContent className="flex flex-row items-center gap-10">
-        <Button variant="secondary" onClick={() => handleIncrement("down")}>
-          <MinusCircledIcon className="fill-red" />
-        </Button>
         {loading ? (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         ) : (
@@ -64,7 +61,12 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
             className="w-16 text-center"
           />
         )}
-        <Button variant="secondary" onClick={() => handleIncrement("up")}>
+        <Button
+          className="flex flex-row gap-3"
+          variant="secondary"
+          onClick={() => handleIncrement("up")}
+        >
+          <div>Log activity</div>
           <PlusCircledIcon />
         </Button>
       </CardContent>

@@ -52,8 +52,10 @@ export default function Track() {
             <div className="flex flex-col gap-5">
               <div className="text-lg font-bold">Year</div>
               {Object.keys(data).map((type) => {
-                const currentVal = data[type as EXERCISE_TYPE].reduce(
-                  (acc, curr) => acc + curr._sum.amount,
+                const typeData = data[type as EXERCISE_TYPE];
+                if (!typeData) return null;
+                const currentVal = typeData.reduce(
+                  (acc, curr) => acc + (curr._sum.amount ?? 0),
                   0,
                 );
                 const total = TARGETS[type as EXERCISE_TYPE];
