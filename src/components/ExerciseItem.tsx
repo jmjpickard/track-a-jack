@@ -26,7 +26,11 @@ export interface ExerciseItemProps {
   target: number;
   itemOptions: number[];
   unit: string;
-  saveExercise: (type: EXERCISE_TYPE, amount: number, unit: string) => void;
+  saveExercise: (
+    type: EXERCISE_TYPE,
+    amount: number,
+    unit: string,
+  ) => Promise<void>;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({

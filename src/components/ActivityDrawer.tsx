@@ -21,7 +21,11 @@ interface DrawerProps {
   title: string;
   unit: string;
   options: number[];
-  onConfirm: (type: EXERCISE_TYPE, amount: number, unit: string) => void;
+  onConfirm: (
+    type: EXERCISE_TYPE,
+    amount: number,
+    unit: string,
+  ) => Promise<void>;
 }
 
 export const ActivityDrawer: React.FC<DrawerProps> = ({
