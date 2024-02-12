@@ -1,10 +1,6 @@
 import dayjs from "dayjs";
 import React from "react";
-import {
-  FilePlusIcon,
-  ThickArrowLeftIcon,
-  ThickArrowRightIcon,
-} from "@radix-ui/react-icons";
+import { ThickArrowLeftIcon, ThickArrowRightIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { ExerciseItem, ExerciseItemProps } from "./ExerciseItem";
 import { EXERCISE_TYPE } from "@prisma/client";

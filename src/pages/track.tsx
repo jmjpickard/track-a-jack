@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
+import { Leaderboard } from "~/components/Leaderboard";
 import { NavBar } from "~/components/NavBar";
 import ProgressDisplay from "~/components/ProgressDisplay";
 import { getWeekNumber } from "~/components/WeekView";
@@ -50,6 +51,7 @@ export default function Track() {
         <div className="w-4/5">
           {!isLoading && data !== undefined && (
             <div className="flex flex-col gap-5">
+              <Leaderboard />
               <div className="text-lg font-bold">Year</div>
               {Object.keys(data).map((type) => {
                 const typeData = data[type as EXERCISE_TYPE];
