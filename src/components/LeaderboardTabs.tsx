@@ -23,7 +23,7 @@ export const LeaderboardSection: React.FC<Props> = ({ exerciseType }) => {
       ) : (
         <div className="flex flex-col gap-1">
           {exerciseData?.map((exercise, index) => (
-            <Card className="pb-2 pt-2">
+            <Card className="pb-2 pt-2" key={index}>
               <div className="flex flex-row items-center justify-around gap-3 pl-3 pr-3">
                 <div>{index}</div>
                 <Avatar className="h-8 w-8 rounded-full">
