@@ -12,8 +12,8 @@ export const userRouter = createTRPCRouter({
   }),
   setUserConsent: protectedProcedure
     .input(z.object({ consent: z.boolean() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db.user.update({
+    .mutation(({ ctx, input }) => {
+      ctx.db.user.update({
         where: { id: ctx.session.user.id },
         data: {
           leaderBoardConsent: input.consent,
