@@ -94,14 +94,16 @@ export const postRouter = createTRPCRouter({
         where: {
           type: input.exerciseType,
         },
+        orderBy: { _sum: { amount: "desc" } },
       });
       const groupedDataWithName = groupedData.map(async (data) => {
         const user = await ctx.db.user.findFirst({
           where: { id: data.createdById },
         });
+        const firstName = user?.name?.split(" ")[0];
         return {
           ...data,
-          userName: user?.name,
+          userName: firstName,
           photo: user?.image,
         };
       });
