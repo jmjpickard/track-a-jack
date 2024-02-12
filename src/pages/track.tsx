@@ -28,7 +28,6 @@ export default function Track() {
   const isAuthLoading = session.status === "loading";
 
   const { data, refetch, isLoading } = api.post.allExerciseByWeek.useQuery();
-  console.log(data);
 
   const router = useRouter();
   React.useEffect(() => {
@@ -59,6 +58,7 @@ export default function Track() {
                   (acc, curr) => acc + (curr._sum.amount ?? 0),
                   0,
                 );
+
                 const total = TARGETS[type as EXERCISE_TYPE];
                 const weekly = WEEKLY_TARGETS[type as EXERCISE_TYPE];
 

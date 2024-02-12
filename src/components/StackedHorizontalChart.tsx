@@ -48,7 +48,6 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({
   xScale.rangeRound([0, xMax]);
   yScale.rangeRound([yMax, 0]);
 
-  console.log({ xMax, yMax, xScale, yScale, colorScale });
   const background = "#eaedff";
   return (
     <svg width={width} height={height}>
@@ -65,7 +64,6 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({
           {(barStacks) =>
             barStacks.map((barStack) =>
               barStack.bars.map((bar) => {
-                console.log({ barStack, bar });
                 return (
                   <rect
                     key={`barstack-horizontal-${barStack.index}-${bar.index}`}

@@ -57,7 +57,7 @@ export const WeekView: React.FC = () => {
   const [weekOfYear, setWeekOfYear] = React.useState(getWeekNumber(new Date()));
   const [year, setYear] = React.useState(dayjs().year());
 
-  const [showSave, setShowSave] = React.useState(false);
+  const [isRemove, setIsRemove] = React.useState(false);
   const { startDate, endDate } = getStartAndEndDate(year, weekOfYear);
   const addOneWeek = async () => {
     if (weekOfYear === 52) {
@@ -83,10 +83,13 @@ export const WeekView: React.FC = () => {
     onMutate: () => toast.loading("Saving activity..."),
     onSuccess: async (data) => {
       await refetch();
-      setShowSave(false);
       const { type, amount, unit } = data;
       const typeFormat = upperFirst(camelCase(type));
-      toast.success(`${amount} ${unit} of ${typeFormat} added!`);
+      if (isRemove) {
+        toast.info(`${-amount} ${unit} of ${typeFormat} removed`);
+      } else {
+        toast.success(`${amount} ${unit} of ${typeFormat} added!`);
+      }
     },
   });
 
@@ -121,38 +124,16 @@ export const WeekView: React.FC = () => {
     type: EXERCISE_TYPE,
     amount: number,
     unit: string,
+    remove: boolean,
   ) => {
+    setIsRemove(remove);
     await addExercise.mutateAsync({
       type,
-      amount,
+      amount: remove ? -amount : amount,
       unit,
       week: weekOfYear,
       year,
     });
-  };
-
-  const saveExercises = async () => {
-    const runningStateDiff = findDiff(EXERCISE_TYPE.RUNNING, running);
-
-    const pushupsStateDiff = findDiff(EXERCISE_TYPE.PUSH_UPS, pushups);
-
-    const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
-    const promises = [
-      { type: EXERCISE_TYPE.RUNNING, amount: runningStateDiff, unit: "km" },
-      { type: EXERCISE_TYPE.PUSH_UPS, amount: pushupsStateDiff, unit: "reps" },
-      { type: EXERCISE_TYPE.SIT_UPS, amount: situpsStateDiff, unit: "reps" },
-    ].map(async ({ type, amount, unit }) => {
-      if (amount) {
-        await addExercise.mutateAsync({
-          type,
-          amount,
-          unit,
-          week: weekOfYear,
-          year,
-        });
-      }
-    });
-    await Promise.all(promises);
   };
 
   const findDiff = (type: EXERCISE_TYPE, state?: number) => {
@@ -166,16 +147,6 @@ export const WeekView: React.FC = () => {
     const pushupsStateDiff = findDiff(EXERCISE_TYPE.PUSH_UPS, pushups);
 
     const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
-
-    if (
-      runningStateDiff !== 0 ||
-      pushupsStateDiff !== 0 ||
-      situpsStateDiff !== 0
-    ) {
-      setShowSave(true);
-    } else {
-      setShowSave(false);
-    }
   }, [running, pushups, situps]);
 
   const exerciseItems: ExerciseItemProps[] = [
@@ -243,17 +214,6 @@ export const WeekView: React.FC = () => {
           <ExerciseItem {...item} key={item.title} />
         ))}
       </div>
-      {showSave && (
-        <div
-          onClick={saveExercises}
-          className="fixed bottom-0 left-0 right-0 flex cursor-pointer flex-col content-center items-center bg-green p-4 text-white transition-all duration-300"
-        >
-          <div className="flex flex-row gap-3 text-xl">
-            <div>{addExercise.isLoading ? "Loading..." : "Save"}</div>
-            <FilePlusIcon className="h-6 w-6" />
-          </div>
-        </div>
-      )}
       <Toaster richColors position="top-right" />
     </div>
   );

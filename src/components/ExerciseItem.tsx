@@ -25,6 +25,7 @@ export interface ExerciseItemProps {
     type: EXERCISE_TYPE,
     amount: number,
     unit: string,
+    remove: boolean,
   ) => Promise<void>;
 }
 

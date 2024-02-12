@@ -15,6 +15,8 @@ import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { ToggleGroup } from "@radix-ui/react-toggle-group";
 import { ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EXERCISE_TYPE } from "@prisma/client";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface DrawerProps {
   type: EXERCISE_TYPE;
@@ -25,6 +27,7 @@ interface DrawerProps {
     type: EXERCISE_TYPE,
     amount: number,
     unit: string,
+    remove: boolean,
   ) => Promise<void>;
 }
 
@@ -36,17 +39,17 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
   onConfirm,
 }: DrawerProps) => {
   const [value, setValue] = React.useState(0);
+  const [removeActivity, setRemoveActivity] = React.useState(false);
   const handleSelect = (selectedVal: number) => {
-    console.log(selectedVal);
     if (value === selectedVal) {
       setValue(0);
     }
     setValue(selectedVal);
   };
   const handleConfirm = async () => {
-    await onConfirm(type, value, unit);
+    await onConfirm(type, value, unit, removeActivity);
   };
-  console.log(value);
+
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -60,6 +63,13 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
           <DrawerHeader>
             <DrawerTitle>{title}</DrawerTitle>
             <DrawerDescription>How many {unit}?</DrawerDescription>
+            <div className="mb-2 mt-2 flex items-center justify-center space-x-2">
+              <Switch
+                id="remove"
+                onCheckedChange={(checked) => setRemoveActivity(checked)}
+              />
+              <Label htmlFor="remove">Remove activity</Label>
+            </div>
           </DrawerHeader>
           <div className="flex flex-row items-center justify-center gap-1 pl-20 pr-20">
             <ToggleGroup type="single">
@@ -70,6 +80,11 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
                   aria-label={`Toggle ${num}`}
                   variant="default"
                   onClick={() => handleSelect(num)}
+                  className={
+                    removeActivity
+                      ? "data-[state=on]:bg-destructive"
+                      : "data-[state=on]:bg-green"
+                  }
                 >
                   {num}
                 </ToggleGroupItem>
