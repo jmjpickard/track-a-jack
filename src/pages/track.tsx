@@ -50,38 +50,8 @@ export default function Track() {
         <NavBar />
         <div className="w-4/5">
           {!isLoading && data !== undefined && (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-7">
               <Leaderboard />
-              <div className="text-lg font-bold">Year</div>
-              {Object.keys(data).map((type) => {
-                const typeData = data[type as EXERCISE_TYPE];
-                if (!typeData) return;
-                const currentVal = typeData.reduce(
-                  (acc, curr) => acc + (curr._sum.amount ?? 0),
-                  0,
-                );
-
-                const total = TARGETS[type as EXERCISE_TYPE];
-                const weekly = WEEKLY_TARGETS[type as EXERCISE_TYPE];
-
-                const current = Math.floor((currentVal / total) * 100);
-                const target = Math.floor(
-                  ((weekly * currentWeek) / total) * 100,
-                );
-
-                const typeFormat = upperFirst(camelCase(type));
-
-                return (
-                  <div key={type}>
-                    <div>{typeFormat}</div>
-                    <ProgressDisplay
-                      current={current}
-                      target={target}
-                      total={100}
-                    />
-                  </div>
-                );
-              })}
             </div>
           )}
         </div>

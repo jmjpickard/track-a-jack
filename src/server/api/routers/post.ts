@@ -75,4 +75,36 @@ export const postRouter = createTRPCRouter({
 
     return group;
   }),
+  exerciseByUser: protectedProcedure
+    .input(
+      z.object({
+        exerciseType: z.enum([
+          EXERCISE_TYPE.PUSH_UPS,
+          EXERCISE_TYPE.RUNNING,
+          EXERCISE_TYPE.SIT_UPS,
+        ]),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const groupedData = await ctx.db.exercise.groupBy({
+        by: ["createdById"],
+        _sum: {
+          amount: true,
+        },
+        where: {
+          type: input.exerciseType,
+        },
+      });
+      const groupedDataWithName = groupedData.map(async (data) => {
+        const user = await ctx.db.user.findFirst({
+          where: { id: data.createdById },
+        });
+        return {
+          ...data,
+          userName: user?.name,
+          photo: user?.image,
+        };
+      });
+      return Promise.all(groupedDataWithName);
+    }),
 });
