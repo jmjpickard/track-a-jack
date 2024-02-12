@@ -8,7 +8,7 @@ export const Leaderboard: React.FC = () => {
     refetch,
     isLoading,
   } = api.user.checkUserConsent.useQuery();
-  console.log({ isConsented, isLoading });
+
   return (
     <div>
       <h1 className="font-bold">Leaderboard</h1>
