@@ -1,34 +1,16 @@
-import { EXERCISE_TYPE } from "@prisma/client";
-import { camelCase, upperFirst } from "lodash";
+import { Slider } from "@/components/ui/slider";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
 import { Leaderboard } from "~/components/Leaderboard";
 import { NavBar } from "~/components/NavBar";
-import ProgressDisplay from "~/components/ProgressDisplay";
 import { getWeekNumber } from "~/components/WeekView";
-
-import { api } from "~/utils/api";
-
-const TARGETS = {
-  RUNNING: 624,
-  SIT_UPS: 10400,
-  PUSH_UPS: 10400,
-};
-
-const WEEKLY_TARGETS = {
-  RUNNING: 12,
-  SIT_UPS: 200,
-  PUSH_UPS: 200,
-};
 
 export default function Track() {
   const session = useSession();
   const isAuth = session.status === "authenticated";
   const isAuthLoading = session.status === "loading";
-
-  const { data, refetch, isLoading } = api.post.allExerciseByWeek.useQuery();
 
   const router = useRouter();
   React.useEffect(() => {
@@ -38,6 +20,7 @@ export default function Track() {
   }, [session, isAuthLoading, isAuth, router]);
 
   const currentWeek = getWeekNumber(new Date());
+  const [week, setWeek] = React.useState([currentWeek]);
 
   return (
     <>
@@ -49,9 +32,22 @@ export default function Track() {
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
         <div className="w-4/5">
-          {!isLoading && data !== undefined && (
+          {!isAuthLoading && (
             <div className="flex flex-col gap-7">
-              <Leaderboard />
+              <div className="flex flex-col gap-7">
+                <h2 className="font-bold">Select week range</h2>
+                <div className="flex flex-row items-center gap-3">
+                  <div>0</div>
+                  <Slider
+                    onValueChange={setWeek}
+                    value={week}
+                    max={7}
+                    step={1}
+                  />
+                  <div>{week[0]}</div>
+                </div>
+              </div>
+              <Leaderboard maxWeek={week[0] ?? currentWeek} />
             </div>
           )}
         </div>

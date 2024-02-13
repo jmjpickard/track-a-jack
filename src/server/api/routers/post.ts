@@ -83,6 +83,7 @@ export const postRouter = createTRPCRouter({
           EXERCISE_TYPE.RUNNING,
           EXERCISE_TYPE.SIT_UPS,
         ]),
+        maxWeek: z.number(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -93,6 +94,7 @@ export const postRouter = createTRPCRouter({
         },
         where: {
           type: input.exerciseType,
+          week: { lte: input.maxWeek },
         },
         orderBy: { _sum: { amount: "desc" } },
       });

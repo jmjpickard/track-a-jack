@@ -1,18 +1,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import Image from "next/image";
 import { api } from "~/utils/api";
 
 interface Props {
   exerciseType: EXERCISE_TYPE;
+  maxWeek: number;
 }
 
-export const LeaderboardSection: React.FC<Props> = ({ exerciseType }) => {
+export const LeaderboardSection: React.FC<Props> = ({
+  exerciseType,
+  maxWeek,
+}) => {
   const { data: exerciseData, isLoading: exerciseDataLoading } =
     api.post.exerciseByUser.useQuery({
       exerciseType,
+      maxWeek,
     });
 
   const firstTwoLetters = (name: string) => name.slice(0, 2).toUpperCase();
@@ -25,7 +29,7 @@ export const LeaderboardSection: React.FC<Props> = ({ exerciseType }) => {
           {exerciseData?.map((exercise, index) => (
             <Card className="pb-2 pt-2" key={index}>
               <div className="flex flex-row items-center justify-around gap-3 pl-3 pr-3">
-                <div>{index}</div>
+                <div>{index + 1}</div>
                 <Avatar className="h-8 w-8 rounded-full">
                   <AvatarImage
                     src={exercise.photo ?? ""}
