@@ -20,6 +20,12 @@ export const LeaderboardSection: React.FC<Props> = ({
     });
 
   const firstTwoLetters = (name: string) => name.slice(0, 2).toUpperCase();
+  const firstLetterOfFirstAndLastName = (name: string) => {
+    const [first, last] = name.split(" ");
+    if (!last || !first) return firstTwoLetters(name);
+    const combine = `${first[0]}${last[0]}`;
+    return combine;
+  };
   return (
     <div>
       {exerciseDataLoading ? (
@@ -36,7 +42,7 @@ export const LeaderboardSection: React.FC<Props> = ({
                     alt={exercise.userName ?? ""}
                   />
                   <AvatarFallback>
-                    {firstTwoLetters(exercise.userName ?? "")}
+                    {firstLetterOfFirstAndLastName(exercise.userName ?? "")}
                   </AvatarFallback>
                 </Avatar>
                 <div>{exercise.userName}</div>
