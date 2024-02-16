@@ -31,7 +31,7 @@ export default function Track() {
       </Head>
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
-        <div className="w-4/5">
+        <div className="w-4/5 lg:w-3/5">
           {!isAuthLoading && (
             <div className="flex flex-col gap-7">
               <div className="flex flex-col gap-7">
