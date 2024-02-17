@@ -25,6 +25,11 @@ export default function Home() {
         <title>Track a Jack</title>
         <meta name="description" content="Track your exercise" />
         <link rel="icon" href="/favicon.ico" />
+        <script
+          defer
+          src="https://analytics.eu.umami.is/script.js"
+          data-website-id="5708d0e2-bb33-484d-8311-72f0057dc1fe"
+        ></script>
       </Head>
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
