@@ -55,11 +55,24 @@ model User {
     email              String?    @unique
     emailVerified      DateTime?
     image              String?
+    password           String?
+    username           String?    @unique
     leaderBoardConsent Boolean    @default(false)
     accounts           Account[]
     sessions           Session[]
     posts              Post[]
     Exercise           Exercise[]
+    
+    // Friendship relationships
+    sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
+    receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+    
+    // Friends - self-referential many-to-many relationship
+    friendsOf              Friendship[]    @relation("UserFriends")
+    friends                Friendship[]    @relation("FriendsOfUser")
+    
+    // Feed posts
+    activityPosts          ActivityPost[]
 }
 
 model VerificationToken {
@@ -88,4 +101,57 @@ model Exercise {
 
     createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
+    
+    // Relation to activity post
+    activityPost   ActivityPost? @relation(fields: [activityPostId], references: [id])
+    activityPostId Int?
+}
+
+// Model for friend requests
+model FriendRequest {
+    id        String   @id @default(cuid())
+    status    String   @default("pending") // pending, accepted, rejected
+    createdAt DateTime @default(now())
+    
+    // Who sent the request
+    senderId String
+    sender   User   @relation("SentFriendRequests", fields: [senderId], references: [id])
+    
+    // Who received the request
+    receiverId String
+    receiver   User   @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+    
+    @@unique([senderId, receiverId])
+}
+
+// Model for confirmed friendships
+model Friendship {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    
+    // Two-way relationship
+    userId String
+    user   User   @relation("UserFriends", fields: [userId], references: [id])
+    
+    friendId String
+    friend   User   @relation("FriendsOfUser", fields: [friendId], references: [id])
+    
+    @@unique([userId, friendId])
+}
+
+// Model for activity posts in the feed
+model ActivityPost {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    // Group identifier (exercises posted within 3 hours are grouped)
+    groupTime DateTime
+    
+    // User who created the post
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+    
+    // Exercises in this activity post
+    exercises Exercise[]
 }
