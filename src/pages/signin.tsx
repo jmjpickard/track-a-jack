@@ -5,7 +5,11 @@ import {
   signIn,
   getCsrfToken,
 } from "next-auth/react";
-import type { LiteralUnion, ClientSafeProvider } from "next-auth/react";
+import type {
+  LiteralUnion,
+  ClientSafeProvider,
+  SignInResponse,
+} from "next-auth/react";
 import type { NextPage } from "next";
 import type { Session } from "next-auth";
 import { useRouter } from "next/router";
@@ -85,11 +89,15 @@ const SignIn: NextPage<SignInProps> = ({
         redirect: false,
       });
 
-      if (result?.error) {
+      if (!result) {
+        throw new Error("No response from sign in");
+      }
+
+      if (result.error) {
         setError("Invalid username or password");
-      } else if (result?.ok) {
+      } else if (result.ok) {
         // Redirect to feed on successful login
-        router.push("/feed");
+        void router.push("/feed");
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
@@ -113,7 +121,11 @@ const SignIn: NextPage<SignInProps> = ({
         callbackUrl: "/feed", // Redirect to feed after email verification
       });
 
-      if (result?.error) {
+      if (!result) {
+        throw new Error("No response from sign in");
+      }
+
+      if (result.error) {
         setError(result.error);
       } else {
         setError("Check your email for a sign in link!");
@@ -145,11 +157,17 @@ const SignIn: NextPage<SignInProps> = ({
       if (response.ok) {
         setForgotPasswordSubmitted(true);
       } else {
-        const data = await response.json();
-        const errorMessage = data.error as string | undefined;
+        // Define a type for the expected error response
+        interface ErrorResponse {
+          error?: string;
+          message?: string;
+        }
+
+        const data = (await response.json()) as ErrorResponse;
+        const errorMessage = data.error || data.message;
         throw new Error(errorMessage ?? "Failed to request password reset");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsSubmitting(false);
@@ -297,7 +315,7 @@ const SignIn: NextPage<SignInProps> = ({
           {forgotPasswordSubmitted ? (
             <div className="py-4">
               <p>
-                If an account exists with that email, you'll receive a password
+                If an account exists with that email, you&apos;ll receive a
                 reset link shortly.
               </p>
               <div className="mt-6 flex justify-end">
