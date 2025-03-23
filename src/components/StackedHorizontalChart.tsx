@@ -48,7 +48,6 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({
   xScale.rangeRound([0, xMax]);
   yScale.rangeRound([yMax, 0]);
 
-  const background = "#eaedff";
   return (
     <svg width={width} height={height}>
       <Group top={margin.top} left={margin.left}>

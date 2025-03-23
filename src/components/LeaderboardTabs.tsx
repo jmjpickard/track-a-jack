@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { EXERCISE_TYPE } from "@prisma/client";
+import type { EXERCISE_TYPE } from "@prisma/client";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { api } from "~/utils/api";
 

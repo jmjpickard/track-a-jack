@@ -94,7 +94,7 @@ interface Post {
  * Card component to display a user's exercise activity post
  */
 const ActivityPost = ({ post }: { post: Post }) => {
-  const userName = post.user.name || post.user.username || "User";
+  const userName = post.user.name ?? post.user.username ?? "User";
   const userImage = post.user.image;
   const exercises = post.exercises;
   const createdAt = new Date(post.createdAt);
@@ -104,7 +104,7 @@ const ActivityPost = ({ post }: { post: Post }) => {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-4">
           <Avatar>
-            <AvatarImage src={userImage || ""} alt={userName} />
+            <AvatarImage src={userImage ?? ""} alt={userName} />
             <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
@@ -137,7 +137,7 @@ const ActivityPost = ({ post }: { post: Post }) => {
                   <span>{label}</span>
                 </div>
                 <Badge variant="secondary" className="px-3 py-1">
-                  {exercise.amount} {exercise.unit || ""}
+                  {exercise.amount} {exercise.unit ?? ""}
                 </Badge>
               </div>
             );

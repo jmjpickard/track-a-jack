@@ -4,7 +4,14 @@ import { NavBar } from "~/components/NavBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Link from "next/link";
 
 const Register: React.FC = () => {
@@ -49,10 +56,10 @@ const Register: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        setError(data.error || "Registration failed");
+        setError(data.error ?? "Registration failed");
       } else {
         // Redirect to login page
         void router.push("/signin?registered=true");
@@ -67,7 +74,7 @@ const Register: React.FC = () => {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background font-mono text-foreground">
       <NavBar />
-      <div className="container flex flex-col items-center justify-center max-w-sm mt-8">
+      <div className="container mt-8 flex max-w-sm flex-col items-center justify-center">
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Create an Account</CardTitle>
@@ -88,7 +95,7 @@ const Register: React.FC = () => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -100,7 +107,7 @@ const Register: React.FC = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="grid gap-2">
                   <Label htmlFor="username">Username</Label>
                   <Input
@@ -112,7 +119,7 @@ const Register: React.FC = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
@@ -123,7 +130,7 @@ const Register: React.FC = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="grid gap-2">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
                   <Input
@@ -134,9 +141,9 @@ const Register: React.FC = () => {
                     required
                   />
                 </div>
-                
+
                 {error && <p className="text-sm text-red-500">{error}</p>}
-                
+
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Creating Account..." : "Register"}
                 </Button>
@@ -144,7 +151,7 @@ const Register: React.FC = () => {
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center">
+            <div className="text-center text-sm">
               Already have an account?{" "}
               <Link href="/signin" className="underline">
                 Sign in

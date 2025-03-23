@@ -2,6 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Resend } from "resend";
 import { env } from "~/env";
 
+interface TestEmailRequestBody {
+  apiKey: string;
+  email: string;
+}
+
 /**
  * Handles a test email request to verify Resend configuration
  * This endpoint should only be used for testing purposes and should be removed in production
@@ -17,7 +22,7 @@ export default async function handler(
 
   // Authentication check - this is a simple API key check
   // In production, you should use a more secure authentication method
-  const { apiKey, email } = req.body;
+  const { apiKey, email } = req.body as TestEmailRequestBody;
 
   if (!apiKey || apiKey !== env.RESEND_API_KEY.substring(0, 10)) {
     return res.status(401).json({ error: "Unauthorized" });

@@ -44,7 +44,7 @@ export const FriendRequestsDropdown = () => {
       } else {
         toast.info("Friend request declined");
       }
-      friendRequestsQuery.refetch();
+      void friendRequestsQuery.refetch();
       setPendingRequestId(null);
     },
     onError: (error) => {
@@ -63,7 +63,7 @@ export const FriendRequestsDropdown = () => {
     respondToRequestMutation.mutate({ requestId, accept: false });
   };
 
-  const receivedRequests = friendRequestsQuery.data?.received || [];
+  const receivedRequests = friendRequestsQuery.data?.received ?? [];
   const requestCount = receivedRequests.length;
 
   return (
@@ -100,16 +100,16 @@ export const FriendRequestsDropdown = () => {
                 <div className="flex items-center justify-between p-2">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={request.sender.image || ""} />
+                      <AvatarImage src={request.sender.image ?? ""} />
                       <AvatarFallback>
-                        {request.sender.name?.charAt(0) ||
-                          request.sender.username?.charAt(0) ||
+                        {request.sender.name?.charAt(0) ??
+                          request.sender.username?.charAt(0) ??
                           "U"}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="font-medium">
-                        {request.sender.name || request.sender.username}
+                        {request.sender.name ?? request.sender.username}
                       </div>
                       {request.sender.username && request.sender.name && (
                         <div className="text-xs text-muted-foreground">

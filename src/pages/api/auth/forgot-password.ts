@@ -12,7 +12,7 @@ export default async function handler(
   }
 
   try {
-    const { email } = req.body;
+    const { email } = req.body as { email: string };
 
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
@@ -31,7 +31,7 @@ export default async function handler(
       from: env.EMAIL_FROM,
       to: email,
       subject: "Reset your password",
-      text: `Hello ${user.name || user.username || "there"},
+      text: `Hello ${user.name ?? user.username ?? "there"},
 
 You requested a password reset for your account. Please click the link below to reset your password:
 
@@ -68,7 +68,7 @@ The Track-A-Jack Team`,
     </div>
     <div class="content">
       <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
-      <p>Hello ${user.name || user.username || "there"},</p>
+      <p>Hello ${user.name ?? user.username ?? "there"},</p>
       <p>You recently requested to reset your password for your Track-A-Jack account. Click the button below to reset it:</p>
       <p style="text-align: center; margin: 30px 0;">
         <a href="${resetUrl}" class="button" style="color: white;">Reset Your Password</a>

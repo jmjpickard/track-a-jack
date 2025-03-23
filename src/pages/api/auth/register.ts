@@ -2,16 +2,23 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { createUser } from "~/utils/auth";
 import { db } from "~/server/db";
 
+interface RegisterRequestBody {
+  email: string;
+  username: string;
+  password: string;
+  name?: string;
+}
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { email, username, password, name } = req.body;
+    const { email, username, password, name } = req.body as RegisterRequestBody;
 
     // Validate input
     if (!email || !username || !password) {
@@ -37,7 +44,7 @@ export default async function handler(
     const user = await createUser({ email, username, password, name });
 
     // Remove the password from the response
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
 
     return res.status(201).json(userWithoutPassword);
   } catch (error) {

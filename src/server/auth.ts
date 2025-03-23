@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     // Handle redirection after sign in
-    async redirect({ url, baseUrl }) {
+    async redirect({ url: _url, baseUrl }) {
       // Always redirect to /feed after sign in
       return `${baseUrl}/feed`;
     },
@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
         const resend = new Resend(env.RESEND_API_KEY);
 
         await resend.emails.send({
-          from: provider.from as string,
+          from: provider.from,
           to: identifier,
           subject: "Sign in to Track-A-Jack",
           text: `Sign in to Track-A-Jack\n\nClick the link below to sign in to your account:\n\n${url}\n\nIf you did not request this email, you can safely ignore it.\n\nThe link will expire in 24 hours.\n\nThanks,\nThe Track-A-Jack Team`,
@@ -159,7 +159,7 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (!user || !user.password) {
+        if (!user?.password) {
           return null;
         }
 
@@ -177,7 +177,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          username: user.username || undefined,
+          username: user.username ?? undefined,
           emailVerified: user.emailVerified,
         };
       },

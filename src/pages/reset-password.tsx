@@ -4,7 +4,14 @@ import { NavBar } from "~/components/NavBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Link from "next/link";
 
 const ResetPassword: React.FC = () => {
@@ -52,10 +59,10 @@ const ResetPassword: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        setError(data.error || "Password reset failed");
+        setError(data.error ?? "Password reset failed");
       } else {
         setSuccess(true);
       }
@@ -69,24 +76,25 @@ const ResetPassword: React.FC = () => {
   return (
     <main className="flex min-h-screen flex-col items-center bg-background font-mono text-foreground">
       <NavBar />
-      <div className="container flex flex-col items-center justify-center max-w-sm mt-8">
+      <div className="container mt-8 flex max-w-sm flex-col items-center justify-center">
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Reset Your Password</CardTitle>
             <CardDescription>
-              {success ? "Your password has been reset" : "Create a new password"}
+              {success
+                ? "Your password has been reset"
+                : "Create a new password"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {success ? (
               <div className="flex flex-col gap-4">
                 <p className="text-sm text-muted-foreground">
-                  Your password has been successfully reset. You can now use your new password to sign in.
+                  Your password has been successfully reset. You can now use
+                  your new password to sign in.
                 </p>
                 <Link href="/signin" passHref>
-                  <Button className="w-full">
-                    Go to Sign In
-                  </Button>
+                  <Button className="w-full">Go to Sign In</Button>
                 </Link>
               </div>
             ) : (
@@ -102,9 +110,11 @@ const ResetPassword: React.FC = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
-                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Label htmlFor="confirm-password">
+                      Confirm New Password
+                    </Label>
                     <Input
                       id="confirm-password"
                       type="password"
@@ -113,9 +123,9 @@ const ResetPassword: React.FC = () => {
                       required
                     />
                   </div>
-                  
+
                   {error && <p className="text-sm text-red-500">{error}</p>}
-                  
+
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? "Resetting Password..." : "Reset Password"}
                   </Button>
@@ -125,7 +135,7 @@ const ResetPassword: React.FC = () => {
           </CardContent>
           {!success && (
             <CardFooter className="flex flex-col space-y-4">
-              <div className="text-sm text-center">
+              <div className="text-center text-sm">
                 Remember your password?{" "}
                 <Link href="/signin" className="underline">
                   Sign in

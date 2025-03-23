@@ -40,13 +40,13 @@ const UserSearchResult = ({
     <div className="flex items-center justify-between border-b p-3">
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={user.image || ""} />
+          <AvatarImage src={user.image ?? ""} />
           <AvatarFallback>
-            {user.name?.charAt(0) || user.username?.charAt(0) || "U"}
+            {user.name?.charAt(0) ?? user.username?.charAt(0) ?? "U"}
           </AvatarFallback>
         </Avatar>
         <div>
-          <div className="font-medium">{user.name || user.username}</div>
+          <div className="font-medium">{user.name ?? user.username}</div>
           {user.username && user.name && (
             <div className="text-xs text-muted-foreground">
               @{user.username}
@@ -113,7 +113,7 @@ export default function FindFriends() {
     onSuccess: (_, variables) => {
       toast.success("Friend request sent successfully!");
       setPendingRequestUserId(null);
-      searchUsersQuery.refetch();
+      void searchUsersQuery.refetch();
     },
     onError: (error) => {
       toast.error(`Failed to send request: ${error.message}`);

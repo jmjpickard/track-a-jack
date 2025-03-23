@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserNav } from "./UserNav";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { FriendRequestsDropdown } from "./FriendRequestsDropdown";
 import { Users } from "lucide-react";
 
@@ -12,7 +11,6 @@ import { Users } from "lucide-react";
 export const NavBar: React.FC = () => {
   const session = useSession();
   const isAuth = session.status === "authenticated";
-  const router = useRouter();
 
   return (
     <div className="mb-10 w-full bg-white">

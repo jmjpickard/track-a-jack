@@ -28,7 +28,7 @@ export async function createUser({
       email,
       username,
       password: hashedPassword,
-      name: name || username,
+      name: name ?? username,
     },
   });
 }
@@ -48,7 +48,9 @@ export async function requestPasswordReset(email: string) {
   const token = await db.verificationToken.create({
     data: {
       identifier: email,
-      token: `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+      token: `${Math.random().toString(36).substring(2, 15)}${Math.random()
+        .toString(36)
+        .substring(2, 15)}`,
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     },
   });

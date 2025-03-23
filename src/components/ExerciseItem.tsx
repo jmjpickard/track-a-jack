@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { EXERCISE_TYPE } from "@prisma/client";
+import type { EXERCISE_TYPE } from "@prisma/client";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ActivityDrawer } from "./ActivityDrawer";
 import { cn } from "@/lib/utils";

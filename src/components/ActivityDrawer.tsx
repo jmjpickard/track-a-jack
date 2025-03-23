@@ -14,7 +14,7 @@ import {
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { ToggleGroup } from "@radix-ui/react-toggle-group";
 import { ToggleGroupItem } from "@/components/ui/toggle-group";
-import { EXERCISE_TYPE } from "@prisma/client";
+import type { EXERCISE_TYPE } from "@prisma/client";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 

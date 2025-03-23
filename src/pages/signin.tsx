@@ -4,11 +4,10 @@ import {
   getProviders,
   signIn,
   getCsrfToken,
-  LiteralUnion,
-  ClientSafeProvider,
 } from "next-auth/react";
-import { NextPage } from "next";
-import { Session } from "next-auth";
+import type { LiteralUnion, ClientSafeProvider } from "next-auth/react";
+import type { NextPage } from "next";
+import type { Session } from "next-auth";
 import { useRouter } from "next/router";
 import { NavBar } from "~/components/NavBar";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BuiltInProviderType } from "next-auth/providers/index";
+import type { BuiltInProviderType } from "next-auth/providers/index";
 import Link from "next/link";
 
 /**
@@ -40,7 +39,7 @@ interface SignInProps {
 
 const SignIn: NextPage<SignInProps> = ({
   providers,
-  csrfToken,
+  csrfToken: _csrfToken,
 }: SignInProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -68,9 +67,7 @@ const SignIn: NextPage<SignInProps> = ({
    * Handles sign in with an OAuth provider
    */
   const handleSignIn = (providerId: string) => {
-    signIn(providerId, { callbackUrl: "/feed" }).catch((error) => {
-      console.error("Sign-in error:", error);
-    });
+    void signIn(providerId, { callbackUrl: "/feed" });
   };
 
   /**
@@ -149,7 +146,8 @@ const SignIn: NextPage<SignInProps> = ({
         setForgotPasswordSubmitted(true);
       } else {
         const data = await response.json();
-        throw new Error(data.error || "Failed to request password reset");
+        const errorMessage = data.error as string | undefined;
+        throw new Error(errorMessage ?? "Failed to request password reset");
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -273,10 +271,13 @@ const SignIn: NextPage<SignInProps> = ({
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm">
-              Don't have an account?{" "}
+              <p>Don&apos;t have an account?</p>
               <Link href="/signup" className="underline">
                 Sign up
               </Link>
+            </div>
+            <div className="text-center text-sm">
+              Don&apos;t worry, we all forget sometimes.
             </div>
           </CardFooter>
         </Card>
@@ -343,10 +344,13 @@ const SignIn: NextPage<SignInProps> = ({
   );
 };
 
-export async function getServerSideProps(context: any) {
+export async function getServerSideProps(context: {
+  req: object;
+  res: object;
+}) {
   const session = await getSession(context);
-  const csrfToken = await getCsrfToken(context);
   const providers = await getProviders();
+  const csrfToken = await getCsrfToken(context);
 
   // If user is already authenticated, redirect to feed
   if (session) {
@@ -361,8 +365,8 @@ export async function getServerSideProps(context: any) {
   return {
     props: {
       session,
-      csrfToken,
       providers,
+      csrfToken,
     },
   };
 }

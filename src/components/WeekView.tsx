@@ -1,8 +1,9 @@
 import dayjs from "dayjs";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ThickArrowLeftIcon, ThickArrowRightIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import { ExerciseItem, ExerciseItemProps } from "./ExerciseItem";
+import { ExerciseItem } from "./ExerciseItem";
+import type { ExerciseItemProps } from "./ExerciseItem";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { api } from "~/utils/api";
 import { Toaster } from "@/components/ui/sonner";
@@ -89,9 +90,9 @@ export const WeekView: React.FC = () => {
     },
   });
 
-  const [running, setRunning] = React.useState<number>();
-  const [pushups, setPushups] = React.useState<number>();
-  const [situps, setSitups] = React.useState<number>();
+  const [runningState, setRunningState] = useState<number | undefined>();
+  const [pushupsState, setPushupsState] = useState<number | undefined>();
+  const [situpsState, setSitupsState] = useState<number | undefined>();
 
   const { data, refetch, isLoading } = api.post.getExerciseByWeek.useQuery(
     {
@@ -100,15 +101,15 @@ export const WeekView: React.FC = () => {
     },
     {
       onSuccess: (response) => {
-        setRunning(
+        setRunningState(
           response?.find((d) => d.type === EXERCISE_TYPE.RUNNING)?._sum
             .amount ?? 0,
         );
-        setPushups(
+        setPushupsState(
           response?.find((d) => d.type === EXERCISE_TYPE.PUSH_UPS)?._sum
             .amount ?? 0,
         );
-        setSitups(
+        setSitupsState(
           response?.find((d) => d.type === EXERCISE_TYPE.SIT_UPS)?._sum
             .amount ?? 0,
         );
@@ -137,21 +138,21 @@ export const WeekView: React.FC = () => {
     return (state ?? 0) - (dbValue ?? 0);
   };
 
-  React.useEffect(() => {
-    const runningStateDiff = findDiff(EXERCISE_TYPE.RUNNING, running);
-
-    const pushupsStateDiff = findDiff(EXERCISE_TYPE.PUSH_UPS, pushups);
-
-    const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situps);
-  }, [running, pushups, situps]);
+  useEffect(() => {
+    if (data) {
+      const runningStateDiff = findDiff(EXERCISE_TYPE.RUNNING, runningState);
+      const pushupsStateDiff = findDiff(EXERCISE_TYPE.PUSH_UPS, pushupsState);
+      const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situpsState);
+    }
+  }, [data, findDiff]);
 
   const exerciseItems: ExerciseItemProps[] = [
     {
       title: "Running",
       subTitle: "Target 12km",
       type: EXERCISE_TYPE.RUNNING,
-      currentValue: running,
-      setValue: setRunning,
+      currentValue: runningState,
+      setValue: setRunningState,
       loading: isLoading,
       target: 12,
       itemOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -162,8 +163,8 @@ export const WeekView: React.FC = () => {
       title: "Pushups",
       subTitle: "Target 200",
       type: EXERCISE_TYPE.PUSH_UPS,
-      currentValue: pushups,
-      setValue: setPushups,
+      currentValue: pushupsState,
+      setValue: setPushupsState,
       loading: isLoading,
       target: 200,
       itemOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
@@ -174,8 +175,8 @@ export const WeekView: React.FC = () => {
       title: "Situps",
       subTitle: "Target 200",
       type: EXERCISE_TYPE.SIT_UPS,
-      currentValue: situps,
-      setValue: setSitups,
+      currentValue: situpsState,
+      setValue: setSitupsState,
       loading: isLoading,
       target: 200,
       itemOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
