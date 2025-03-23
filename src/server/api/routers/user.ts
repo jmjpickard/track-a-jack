@@ -127,54 +127,49 @@ export const userRouter = createTRPCRouter({
         // For debugging
         console.log("sendFriendRequest called with:", input);
 
-        // Temporary response until database is fixed
-        return { success: true };
-
-        /* Original code - commented out until we fix the database issue
         const senderId = ctx.session.user.id;
-        
+
         // Check if a request already exists
         const existingRequest = await ctx.db.friendRequest.findUnique({
           where: {
             senderId_receiverId: {
               senderId,
-              receiverId: input.receiverId
-            }
-          }
+              receiverId: input.receiverId,
+            },
+          },
         });
-        
+
         if (existingRequest) {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Friend request already sent'
+            code: "BAD_REQUEST",
+            message: "Friend request already sent",
           });
         }
-        
+
         // Check if users are already friends
         const existingFriendship = await ctx.db.friendship.findFirst({
           where: {
             OR: [
               { userId: senderId, friendId: input.receiverId },
-              { userId: input.receiverId, friendId: senderId }
-            ]
-          }
+              { userId: input.receiverId, friendId: senderId },
+            ],
+          },
         });
-        
+
         if (existingFriendship) {
           throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Users are already friends'
+            code: "BAD_REQUEST",
+            message: "Users are already friends",
           });
         }
-        
+
         // Create the friend request
         return ctx.db.friendRequest.create({
           data: {
             senderId,
-            receiverId: input.receiverId
-          }
+            receiverId: input.receiverId,
+          },
         });
-        */
       } catch (error) {
         console.error("Error in sendFriendRequest:", error);
         throw new TRPCError({
@@ -196,58 +191,53 @@ export const userRouter = createTRPCRouter({
         // For debugging
         console.log("respondToFriendRequest called with:", input);
 
-        // Temporary response until database is fixed
-        return { success: true };
-
-        /* Original code - commented out until we fix the database issue
         const userId = ctx.session.user.id;
-        
+
         // Find the request
         const request = await ctx.db.friendRequest.findFirst({
           where: {
             id: input.requestId,
-            receiverId: userId
-          }
+            receiverId: userId,
+          },
         });
-        
+
         if (!request) {
           throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Friend request not found'
+            code: "NOT_FOUND",
+            message: "Friend request not found",
           });
         }
-        
+
         if (input.accept) {
           // Create friendship connections (both ways)
           await ctx.db.friendship.create({
             data: {
               userId: request.senderId,
-              friendId: userId
-            }
+              friendId: userId,
+            },
           });
-          
+
           await ctx.db.friendship.create({
             data: {
               userId,
-              friendId: request.senderId
-            }
+              friendId: request.senderId,
+            },
           });
-          
+
           // Update request status
           await ctx.db.friendRequest.update({
             where: { id: request.id },
-            data: { status: 'accepted' }
+            data: { status: "accepted" },
           });
         } else {
           // Reject the request
           await ctx.db.friendRequest.update({
             where: { id: request.id },
-            data: { status: 'rejected' }
+            data: { status: "rejected" },
           });
         }
-        
+
         return { success: true };
-        */
       } catch (error) {
         console.error("Error in respondToFriendRequest:", error);
         throw new TRPCError({

@@ -13,6 +13,7 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 import Link from "next/link";
 
 /**
@@ -20,24 +21,45 @@ import Link from "next/link";
  */
 export const FriendRequestsDropdown = () => {
   const [open, setOpen] = useState(false);
+  const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
 
   // Get friend requests
   const friendRequestsQuery = api.user.getFriendRequests.useQuery(undefined, {
     refetchInterval: open ? 10000 : false, // Refetch every 10 seconds when open
   });
 
+  // Access the feed query to allow refetching
+  const utils = api.useUtils();
+
   // Mutations
   const respondToRequestMutation = api.user.respondToFriendRequest.useMutation({
-    onSuccess: () => {
+    onMutate: () => {
+      toast.loading("Processing request...");
+    },
+    onSuccess: (_, variables) => {
+      if (variables.accept) {
+        toast.success("Friend request accepted!");
+        // Invalidate the feed query to refetch when accepting a friend
+        void utils.post.getFeed.invalidate();
+      } else {
+        toast.info("Friend request declined");
+      }
       friendRequestsQuery.refetch();
+      setPendingRequestId(null);
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+      setPendingRequestId(null);
     },
   });
 
   const handleAcceptRequest = (requestId: string) => {
+    setPendingRequestId(requestId);
     respondToRequestMutation.mutate({ requestId, accept: true });
   };
 
   const handleRejectRequest = (requestId: string) => {
+    setPendingRequestId(requestId);
     respondToRequestMutation.mutate({ requestId, accept: false });
   };
 
@@ -103,15 +125,23 @@ export const FriendRequestsDropdown = () => {
                       variant="outline"
                       className="h-7 px-2"
                       onClick={() => handleRejectRequest(request.id)}
+                      disabled={pendingRequestId === request.id}
                     >
-                      ✕
+                      {pendingRequestId === request.id &&
+                      !respondToRequestMutation.variables?.accept
+                        ? "..."
+                        : "✕"}
                     </Button>
                     <Button
                       size="sm"
                       className="h-7 px-2"
                       onClick={() => handleAcceptRequest(request.id)}
+                      disabled={pendingRequestId === request.id}
                     >
-                      ✓
+                      {pendingRequestId === request.id &&
+                      respondToRequestMutation.variables?.accept
+                        ? "..."
+                        : "✓"}
                     </Button>
                   </div>
                 </div>
