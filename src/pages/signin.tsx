@@ -164,7 +164,7 @@ const SignIn: NextPage<SignInProps> = ({
         }
 
         const data = (await response.json()) as ErrorResponse;
-        const errorMessage = data.error || data.message;
+        const errorMessage = data.error ?? data.message;
         throw new Error(errorMessage ?? "Failed to request password reset");
       }
     } catch (error: unknown) {
