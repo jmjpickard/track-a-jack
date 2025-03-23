@@ -58,6 +58,11 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
+    // Handle redirection after sign in
+    async redirect({ url, baseUrl }) {
+      // Always redirect to /feed after sign in
+      return `${baseUrl}/feed`;
+    },
   },
   adapter: PrismaAdapter(db),
   pages: {
@@ -81,6 +86,57 @@ export const authOptions: NextAuthOptions = {
         secure: true,
       },
       from: env.EMAIL_FROM,
+      sendVerificationRequest: async ({ identifier, url, provider }) => {
+        const { Resend } = await import("resend");
+        const resend = new Resend(env.RESEND_API_KEY);
+
+        await resend.emails.send({
+          from: provider.from as string,
+          to: identifier,
+          subject: "Sign in to Track-A-Jack",
+          text: `Sign in to Track-A-Jack\n\nClick the link below to sign in to your account:\n\n${url}\n\nIf you did not request this email, you can safely ignore it.\n\nThe link will expire in 24 hours.\n\nThanks,\nThe Track-A-Jack Team`,
+          html: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <style type="text/css">
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+    table { border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; text-align: center; }
+    .content { padding: 30px 0; }
+    .button { background-color: #0070f3; border-radius: 4px; color: white; display: inline-block; font-size: 16px; font-weight: 500; line-height: 1; padding: 12px 24px; text-decoration: none; }
+    .footer { color: #666; font-size: 12px; text-align: center; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="color: #333; margin: 0;">Track-A-Jack</h1>
+    </div>
+    <div class="content">
+      <h2 style="color: #333; margin-top: 0;">Sign in to Your Account</h2>
+      <p>Click the button below to sign in to your Track-A-Jack account:</p>
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="${url}" class="button" style="color: white;">Sign in to Track-A-Jack</a>
+      </p>
+      <p>If you did not request this email, you can safely ignore it.</p>
+      <p>This link will expire in 24 hours.</p>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} Track-A-Jack. All rights reserved.</p>
+      <p>If you're having trouble clicking the sign in button, copy and paste the URL below into your web browser:</p>
+      <p style="word-break: break-all;">${url}</p>
+    </div>
+  </div>
+</body>
+</html>`,
+        });
+      },
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -121,7 +177,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          username: user.username,
+          username: user.username || undefined,
           emailVerified: user.emailVerified,
         };
       },

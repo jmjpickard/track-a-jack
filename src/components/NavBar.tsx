@@ -3,7 +3,12 @@ import Link from "next/link";
 import { UserNav } from "./UserNav";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { FriendRequestsDropdown } from "./FriendRequestsDropdown";
+import { Users } from "lucide-react";
 
+/**
+ * Navigation bar component for the application
+ */
 export const NavBar: React.FC = () => {
   const session = useSession();
   const isAuth = session.status === "authenticated";
@@ -19,7 +24,17 @@ export const NavBar: React.FC = () => {
             </h3>
             {!isAuth && <div>Get off your arse</div>}
           </div>
-          {isAuth && <UserNav />}
+          {isAuth && (
+            <div className="flex items-center gap-2">
+              <Link href="/find-friends">
+                <Button variant="ghost" size="icon" title="Find Friends">
+                  <Users className="h-5 w-5" />
+                </Button>
+              </Link>
+              <FriendRequestsDropdown />
+              <UserNav />
+            </div>
+          )}
         </div>
         {isAuth && (
           <div className="flex flex-row items-center justify-center gap-5 sm:justify-start ">

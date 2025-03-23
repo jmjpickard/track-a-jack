@@ -1,26 +1,39 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import { NavBar } from "~/components/NavBar";
 import { api } from "~/utils/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { EXERCISE_TYPE } from "@prisma/client";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { EXERCISE_TYPE } from "@prisma/client";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  CalendarDays,
+  Clock,
+  Dumbbell,
+  Heart,
+  MoreHorizontal,
+  Ruler,
+  Timer,
+  Users2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-// Helper function to format date
+/**
+ * Formats a date relative to now (e.g. "2d ago")
+ */
 const formatDate = (date: Date) => {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
@@ -40,155 +53,108 @@ const formatDate = (date: Date) => {
   }
 };
 
-// Helper function to format exercise type
-const formatExerciseType = (type: EXERCISE_TYPE) => {
+/**
+ * Returns a formatted string and icon for the exercise type
+ */
+const getExerciseInfo = (type: EXERCISE_TYPE) => {
   switch (type) {
-    case "PUSH_UPS":
-      return "Push-ups";
-    case "SIT_UPS":
-      return "Sit-ups";
-    case "RUNNING":
-      return "Running";
+    case EXERCISE_TYPE.PUSH_UPS:
+      return { label: "Push-ups", icon: <Dumbbell className="h-4 w-4" /> };
+    case EXERCISE_TYPE.SIT_UPS:
+      return { label: "Sit-ups", icon: <Dumbbell className="h-4 w-4" /> };
+    case EXERCISE_TYPE.RUNNING:
+      return { label: "Running", icon: <Timer className="h-4 w-4" /> };
     default:
-      return type;
+      return { label: type, icon: <Dumbbell className="h-4 w-4" /> };
   }
 };
 
-const ActivityPost = ({ post }: { post: any }) => {
+interface Exercise {
+  id: number;
+  type: EXERCISE_TYPE;
+  amount: number;
+  unit?: string | null;
+}
+
+interface User {
+  id: string;
+  name?: string | null;
+  username?: string | null;
+  image?: string | null;
+}
+
+interface Post {
+  id: number;
+  user: User;
+  exercises: Exercise[];
+  createdAt: string | Date;
+}
+
+/**
+ * Card component to display a user's exercise activity post
+ */
+const ActivityPost = ({ post }: { post: Post }) => {
   const userName = post.user.name || post.user.username || "User";
   const userImage = post.user.image;
   const exercises = post.exercises;
+  const createdAt = new Date(post.createdAt);
 
   return (
     <Card className="mb-4">
-      <CardHeader className="flex flex-row items-center gap-4 pb-2">
-        <Avatar>
-          <AvatarImage src={userImage} alt={userName} />
-          <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <CardTitle className="text-base">{userName}</CardTitle>
-          <CardDescription className="text-xs">
-            {formatDate(new Date(post.createdAt))}
-          </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarImage src={userImage || ""} alt={userName} />
+            <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-base">{userName}</CardTitle>
+            <CardDescription className="flex items-center gap-1 text-xs">
+              <CalendarDays className="h-3 w-3" /> {formatDate(createdAt)}
+            </CardDescription>
+          </div>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Report</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
-      <CardContent className="pb-2">
-        <div className="flex flex-col gap-2">
-          {exercises.map((exercise: any) => (
-            <div
-              key={exercise.id}
-              className="flex items-center justify-between"
-            >
-              <span>{formatExerciseType(exercise.type)}:</span>
-              <Badge variant="outline">
-                {exercise.amount} {exercise.unit || ""}
-              </Badge>
-            </div>
-          ))}
+      <CardContent>
+        <div className="flex flex-col gap-3">
+          {exercises.map((exercise) => {
+            const { label, icon } = getExerciseInfo(exercise.type);
+            return (
+              <div
+                key={exercise.id}
+                className="flex items-center justify-between rounded-md border p-3"
+              >
+                <div className="flex items-center gap-2">
+                  {icon}
+                  <span>{label}</span>
+                </div>
+                <Badge variant="secondary" className="px-3 py-1">
+                  {exercise.amount} {exercise.unit || ""}
+                </Badge>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
   );
 };
 
-const UserSearchResult = ({
-  user,
-  onSendRequest,
-}: {
-  user: any;
-  onSendRequest: (userId: string) => void;
-}) => {
-  return (
-    <div className="flex items-center justify-between border-b p-2">
-      <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={user.image} />
-          <AvatarFallback>
-            {user.name?.charAt(0) || user.username?.charAt(0) || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <div className="font-medium">{user.name || user.username}</div>
-          {user.username && user.name && (
-            <div className="text-xs text-muted-foreground">
-              @{user.username}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {user.friendStatus === "none" && (
-        <Button size="sm" onClick={() => onSendRequest(user.id)}>
-          Add Friend
-        </Button>
-      )}
-
-      {user.friendStatus === "pending" && (
-        <Badge variant="outline">Request Sent</Badge>
-      )}
-
-      {user.friendStatus === "friends" && <Badge>Friends</Badge>}
-
-      {user.friendStatus?.startsWith("received") && (
-        <Badge variant="outline">Request Received</Badge>
-      )}
-    </div>
-  );
-};
-
-const FriendRequest = ({
-  request,
-  onAccept,
-  onReject,
-}: {
-  request: any;
-  onAccept: (id: string) => void;
-  onReject: (id: string) => void;
-}) => {
-  const sender = request.sender;
-
-  return (
-    <div className="flex items-center justify-between border-b p-2">
-      <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={sender.image} />
-          <AvatarFallback>
-            {sender.name?.charAt(0) || sender.username?.charAt(0) || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <div className="font-medium">{sender.name || sender.username}</div>
-          {sender.username && sender.name && (
-            <div className="text-xs text-muted-foreground">
-              @{sender.username}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onReject(request.id)}
-        >
-          Reject
-        </Button>
-        <Button size="sm" onClick={() => onAccept(request.id)}>
-          Accept
-        </Button>
-      </div>
-    </div>
-  );
-};
-
+/**
+ * Main feed page showing exercise posts from the user and their friends
+ */
 export default function Feed() {
   const session = useSession();
   const isAuth = session.status === "authenticated";
   const isAuthLoading = session.status === "loading";
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("feed");
 
   const router = useRouter();
   React.useEffect(() => {
@@ -203,47 +169,9 @@ export default function Feed() {
       limit: 20,
     },
     {
-      enabled: isAuth && activeTab === "feed",
+      enabled: isAuth,
     },
   );
-
-  // Get friend requests
-  const friendRequestsQuery = api.user.getFriendRequests.useQuery(undefined, {
-    enabled: isAuth && activeTab === "requests",
-  });
-
-  // Search users
-  const searchUsersQuery = api.user.searchUsers.useQuery(
-    { query: searchQuery },
-    {
-      enabled: isAuth && activeTab === "search" && searchQuery.length > 0,
-    },
-  );
-
-  // Mutations
-  const sendFriendRequestMutation = api.user.sendFriendRequest.useMutation({
-    onSuccess: () => {
-      searchUsersQuery.refetch();
-    },
-  });
-
-  const respondToRequestMutation = api.user.respondToFriendRequest.useMutation({
-    onSuccess: () => {
-      friendRequestsQuery.refetch();
-    },
-  });
-
-  const handleSendFriendRequest = (userId: string) => {
-    sendFriendRequestMutation.mutate({ receiverId: userId });
-  };
-
-  const handleAcceptRequest = (requestId: string) => {
-    respondToRequestMutation.mutate({ requestId, accept: true });
-  };
-
-  const handleRejectRequest = (requestId: string) => {
-    respondToRequestMutation.mutate({ requestId, accept: false });
-  };
 
   return (
     <>
@@ -255,129 +183,31 @@ export default function Feed() {
       <main className="flex min-h-screen flex-col items-center bg-background font-mono text-foreground">
         <NavBar />
         <div className="container max-w-2xl pt-4">
-          <Tabs
-            defaultValue="feed"
-            className="w-full"
-            onValueChange={setActiveTab}
-          >
-            <TabsList className="mb-4 grid w-full grid-cols-3">
-              <TabsTrigger value="feed">Feed</TabsTrigger>
-              <TabsTrigger value="requests">
-                Friend Requests
-                {friendRequestsQuery.data?.received.length ? (
-                  <Badge variant="destructive" className="ml-1">
-                    {friendRequestsQuery.data.received.length}
-                  </Badge>
-                ) : null}
-              </TabsTrigger>
-              <TabsTrigger value="search">Find Friends</TabsTrigger>
-            </TabsList>
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Activity Feed</h1>
+          </div>
 
-            <TabsContent value="feed" className="pt-2">
-              {feedQuery.isLoading ? (
-                <div className="py-10 text-center">Loading feed...</div>
-              ) : feedQuery.data?.posts.length ? (
-                <div className="space-y-4">
-                  {feedQuery.data.posts.map((post) => (
-                    <ActivityPost key={post.id} post={post} />
-                  ))}
+          {feedQuery.isLoading ? (
+            <div className="py-10 text-center">Loading feed...</div>
+          ) : feedQuery.data?.posts.length ? (
+            <div className="space-y-4">
+              {feedQuery.data.posts.map((post) => (
+                <ActivityPost key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <Card className="py-10 text-center">
+              <CardContent className="pt-6">
+                <div className="mb-4 flex justify-center">
+                  <Users2 className="h-16 w-16 text-muted-foreground" />
                 </div>
-              ) : (
-                <div className="py-10 text-center">
-                  <p className="mb-4">Your feed is empty</p>
-                  <p className="text-sm text-muted-foreground">
-                    Add friends or log some exercise to see activity
-                  </p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="requests" className="pt-2">
-              <div className="divide-y rounded-md border">
-                <div className="p-3 font-medium">Friend Requests</div>
-
-                {friendRequestsQuery.isLoading ? (
-                  <div className="p-8 text-center">Loading requests...</div>
-                ) : friendRequestsQuery.data?.received.length ? (
-                  <ScrollArea className="max-h-[300px]">
-                    {friendRequestsQuery.data.received.map((request) => (
-                      <FriendRequest
-                        key={request.id}
-                        request={request}
-                        onAccept={handleAcceptRequest}
-                        onReject={handleRejectRequest}
-                      />
-                    ))}
-                  </ScrollArea>
-                ) : (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No friend requests
-                  </div>
-                )}
-              </div>
-
-              {friendRequestsQuery.data?.sent.length ? (
-                <div className="mt-4 divide-y rounded-md border">
-                  <div className="p-3 font-medium">Sent Requests</div>
-                  <ScrollArea className="max-h-[200px]">
-                    {friendRequestsQuery.data.sent.map((request) => (
-                      <div
-                        key={request.id}
-                        className="flex items-center gap-2 border-b p-2"
-                      >
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={request.receiver.image ?? ""} />
-                          <AvatarFallback>
-                            {request.receiver.name?.charAt(0) ||
-                              request.receiver.username?.charAt(0) ||
-                              "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="font-medium">
-                            {request.receiver.name || request.receiver.username}
-                          </div>
-                        </div>
-                        <Badge variant="outline">Pending</Badge>
-                      </div>
-                    ))}
-                  </ScrollArea>
-                </div>
-              ) : null}
-            </TabsContent>
-
-            <TabsContent value="search" className="pt-2">
-              <div className="mb-4">
-                <Input
-                  placeholder="Search for friends..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-
-              {searchQuery.length > 0 ? (
-                searchUsersQuery.isLoading ? (
-                  <div className="py-10 text-center">Searching...</div>
-                ) : searchUsersQuery.data?.length ? (
-                  <div className="divide-y rounded-md border">
-                    {searchUsersQuery.data.map((user) => (
-                      <UserSearchResult
-                        key={user.id}
-                        user={user}
-                        onSendRequest={handleSendFriendRequest}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-10 text-center">No users found</div>
-                )
-              ) : (
-                <div className="py-10 text-center text-muted-foreground">
-                  Enter a name, username, or email to search
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                <p className="mb-2 text-xl font-medium">Your feed is empty</p>
+                <p className="text-sm text-muted-foreground">
+                  Connect with friends or log some exercise to see activity
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
     </>

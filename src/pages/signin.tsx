@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   getSession,
   getProviders,
@@ -9,15 +9,26 @@ import {
 } from "next-auth/react";
 import { NextPage } from "next";
 import { Session } from "next-auth";
+import { useRouter } from "next/router";
 import { NavBar } from "~/components/NavBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BuiltInProviderType } from "next-auth/providers/index";
 import Link from "next/link";
 
+/**
+ * Interface for SignIn page props
+ */
 interface SignInProps {
   providers?: Record<
     LiteralUnion<BuiltInProviderType, string>,
@@ -27,7 +38,10 @@ interface SignInProps {
   session?: Session;
 }
 
-const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) => {
+const SignIn: NextPage<SignInProps> = ({
+  providers,
+  csrfToken,
+}: SignInProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -35,13 +49,33 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
   const [error, setError] = useState("");
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordSubmitted, setForgotPasswordSubmitted] = useState(false);
+  const router = useRouter();
+  const forgotPasswordModalRef = useRef<HTMLDialogElement>(null);
 
+  const openForgotPasswordModal = () => {
+    if (forgotPasswordModalRef.current) {
+      forgotPasswordModalRef.current.showModal();
+    }
+  };
+
+  const closeForgotPasswordModal = () => {
+    if (forgotPasswordModalRef.current) {
+      forgotPasswordModalRef.current.close();
+    }
+  };
+
+  /**
+   * Handles sign in with an OAuth provider
+   */
   const handleSignIn = (providerId: string) => {
     signIn(providerId, { callbackUrl: "/feed" }).catch((error) => {
       console.error("Sign-in error:", error);
     });
   };
 
+  /**
+   * Handles sign in with credentials (username/password)
+   */
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -67,18 +101,21 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
     }
   };
 
+  /**
+   * Handles sign in with email (magic link)
+   */
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
 
     try {
-      const result = await signIn("email", { 
-        email, 
+      const result = await signIn("email", {
+        email,
         redirect: false,
-        callbackUrl: "/feed"  // Redirect to feed after email verification
+        callbackUrl: "/feed", // Redirect to feed after email verification
       });
-      
+
       if (result?.error) {
         setError(result.error);
       } else {
@@ -91,6 +128,9 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
     }
   };
 
+  /**
+   * Handles password reset request
+   */
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -109,10 +149,10 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
         setForgotPasswordSubmitted(true);
       } else {
         const data = await response.json();
-        setError(data.error || "An error occurred. Please try again.");
+        throw new Error(data.error || "Failed to request password reset");
       }
     } catch (error) {
-      setError("An error occurred. Please try again.");
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsSubmitting(false);
     }
@@ -121,22 +161,19 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
   return (
     <main className="flex min-h-screen flex-col items-center bg-background font-mono text-foreground">
       <NavBar />
-      <div className="container flex flex-col items-center justify-center max-w-sm mt-8">
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Choose your preferred sign in method
-            </CardDescription>
+      <div className="container flex flex-col items-center justify-center gap-4 px-4 py-8">
+        <Card className="mx-auto max-w-sm">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+            <CardDescription>Sign in to your account</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="credentials" className="w-full">
-              <TabsList className="grid grid-cols-3 mb-4">
+            <Tabs defaultValue="credentials">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="credentials">Password</TabsTrigger>
                 <TabsTrigger value="email">Email</TabsTrigger>
-                <TabsTrigger value="providers">Other</TabsTrigger>
+                <TabsTrigger value="oauth">Social</TabsTrigger>
               </TabsList>
-              
               <TabsContent value="credentials">
                 <form onSubmit={handleCredentialsSignIn}>
                   <div className="grid gap-4">
@@ -155,9 +192,10 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password">Password</Label>
                         <Button
+                          type="button"
                           variant="link"
                           className="px-0 text-xs"
-                          onClick={() => document.getElementById("forgot-password-modal")?.showModal()}
+                          onClick={openForgotPasswordModal}
                         >
                           Forgot password?
                         </Button>
@@ -177,7 +215,6 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
                   </div>
                 </form>
               </TabsContent>
-              
               <TabsContent value="email">
                 <form onSubmit={handleEmailSignIn}>
                   <div className="grid gap-4">
@@ -192,24 +229,39 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
                         required
                       />
                     </div>
-                    {error && <p className="text-sm text-red-500">{error}</p>}
+                    {error && (
+                      <p
+                        className={`text-sm ${
+                          error.includes("Check your email")
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {error}
+                      </p>
+                    )}
                     <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Sending link..." : "Send Magic Link"}
+                      {isSubmitting ? "Sending link..." : "Email Sign In Link"}
                     </Button>
                   </div>
                 </form>
               </TabsContent>
-              
-              <TabsContent value="providers">
-                <div className="grid gap-2">
+              <TabsContent value="oauth">
+                <div className="grid gap-4">
                   {providers &&
                     Object.values(providers)
-                      .filter(provider => provider.id !== "credentials" && provider.id !== "email")
+                      .filter(
+                        (provider) =>
+                          provider.id !== "credentials" &&
+                          provider.id !== "email",
+                      )
                       .map((provider) => (
                         <Button
-                          key={provider.name}
-                          variant="outline"
+                          key={provider.id}
                           onClick={() => handleSignIn(provider.id)}
+                          variant={
+                            provider.id === "google" ? "default" : "outline"
+                          }
                           className="w-full"
                         >
                           Sign in with {provider.name}
@@ -220,56 +272,68 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
             </Tabs>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <div className="text-sm text-center">
+            <div className="text-center text-sm">
               Don't have an account?{" "}
-              <Link href="/register" className="underline">
-                Register here
+              <Link href="/signup" className="underline">
+                Sign up
               </Link>
             </div>
           </CardFooter>
         </Card>
       </div>
 
-      {/* Forgot Password Dialog */}
-      <dialog id="forgot-password-modal" className="modal">
-        <div className="modal-box">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-          </form>
+      {/* Forgot Password Modal */}
+      <dialog
+        id="forgot-password-modal"
+        className="modal"
+        ref={forgotPasswordModalRef}
+      >
+        <div className="modal-box w-96 rounded-lg bg-card p-6 text-card-foreground shadow-lg">
+          <h3 className="mb-4 text-xl font-bold">
+            {forgotPasswordSubmitted ? "Email Sent" : "Reset Password"}
+          </h3>
+
           {forgotPasswordSubmitted ? (
-            <div className="p-4">
-              <h3 className="font-bold text-lg mb-4">Password Reset Link Sent</h3>
-              <p>If an account exists with this email, we've sent a password reset link. Please check your inbox.</p>
-              <div className="modal-action">
-                <form method="dialog">
-                  <Button>Close</Button>
-                </form>
+            <div className="py-4">
+              <p>
+                If an account exists with that email, you'll receive a password
+                reset link shortly.
+              </p>
+              <div className="mt-6 flex justify-end">
+                <Button type="button" onClick={closeForgotPasswordModal}>
+                  Close
+                </Button>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleForgotPassword} className="p-4">
-              <h3 className="font-bold text-lg mb-4">Reset your password</h3>
-              <div className="grid gap-4">
-                <div className="grid gap-2">
+            <form onSubmit={handleForgotPassword}>
+              <div className="py-4">
+                <p className="py-2">
+                  Enter your email address to receive a password reset link.
+                </p>
+                <div className="mt-2 grid gap-2">
                   <Label htmlFor="forgot-password-email">Email</Label>
                   <Input
                     id="forgot-password-email"
                     type="email"
-                    placeholder="name@example.com"
                     value={forgotPasswordEmail}
                     onChange={(e) => setForgotPasswordEmail(e.target.value)}
                     required
                   />
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                <div className="modal-action">
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending..." : "Send Reset Link"}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={() => document.getElementById("forgot-password-modal")?.close()}>
-                    Cancel
-                  </Button>
-                </div>
+                {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Send Reset Link"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeForgotPasswordModal}
+                >
+                  Cancel
+                </Button>
               </div>
             </form>
           )}
@@ -279,25 +343,28 @@ const SignIn: NextPage<SignInProps> = ({ providers, csrfToken }: SignInProps) =>
   );
 };
 
-SignIn.getInitialProps = async (context): Promise<SignInProps> => {
-  const { req, res } = context;
-  const session = await getSession({ req });
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
+  const csrfToken = await getCsrfToken(context);
+  const providers = await getProviders();
 
-  if (session && res) {
-    res.writeHead(302, { Location: "/feed" });
-    res.end();
+  // If user is already authenticated, redirect to feed
+  if (session) {
     return {
-      session,
-      providers: undefined,
-      csrfToken: undefined,
+      redirect: {
+        destination: "/feed",
+        permanent: false,
+      },
     };
   }
 
   return {
-    session: undefined,
-    providers: await getProviders(),
-    csrfToken: await getCsrfToken({ req }),
+    props: {
+      session,
+      csrfToken,
+      providers,
+    },
   };
-};
+}
 
 export default SignIn;
