@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { updateStreak } from "~/server/services/streakService";
+import { updateChallengeProgress } from "~/server/services/challengeService";
 
 export const postRouter = createTRPCRouter({
   addExercise: protectedProcedure
@@ -82,6 +83,14 @@ export const postRouter = createTRPCRouter({
 
         // Update user's streak
         await updateStreak(userId);
+
+        // Update challenge progress
+        await updateChallengeProgress(userId, input.type, input.amount).catch(
+          (error) => {
+            console.error("Error updating challenge progress:", error);
+            // We don't want to fail the whole request if challenge update fails
+          },
+        );
 
         return result;
       } catch (error) {
@@ -335,6 +344,80 @@ export const postRouter = createTRPCRouter({
           posts: [],
           nextCursor: undefined,
         };
+      }
+    }),
+
+  // Get recent activity posts for a specific challenge
+  getRecentActivityPostsForChallenge: protectedProcedure
+    .input(
+      z.object({
+        challengeId: z.string(),
+        limit: z.number().min(1).max(50).default(10),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        // First, get the challenge to check its type
+        const challenge = await ctx.db.challenge.findUnique({
+          where: { id: input.challengeId },
+          select: {
+            type: true,
+            participants: {
+              select: {
+                userId: true,
+              },
+            },
+          },
+        });
+
+        if (!challenge) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Challenge not found",
+          });
+        }
+
+        // Get participant user IDs
+        const participantIds = challenge.participants.map((p) => p.userId);
+
+        // Find activity posts from participants that include the challenge exercise type
+        const posts = await ctx.db.activityPost.findMany({
+          where: {
+            userId: { in: participantIds },
+            exercises: {
+              some: {
+                type: challenge.type,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: input.limit,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+              },
+            },
+            exercises: {
+              where: {
+                type: challenge.type,
+              },
+            },
+          },
+        });
+
+        return posts;
+      } catch (error) {
+        console.error("Error in getRecentActivityPostsForChallenge:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch challenge activity posts",
+        });
       }
     }),
 });

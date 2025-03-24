@@ -77,6 +77,10 @@ model User {
     // Streak information
     streak       Streak?
     Notification Notification[]
+
+    // Challenge relationships
+    createdChallenges       Challenge[]            @relation("CreatedChallenges")
+    challengeParticipations ChallengeParticipant[]
 }
 
 model VerificationToken {
@@ -187,4 +191,44 @@ model Notification {
     // User who receives this notification
     userId String
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Model for challenge competitions
+model Challenge {
+    id               String        @id @default(cuid())
+    name             String
+    description      String?
+    type             EXERCISE_TYPE
+    goalAmount       Int
+    startDate        DateTime
+    endDate          DateTime
+    isPublic         Boolean       @default(false)
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    winnersAnnounced Boolean       @default(false)
+
+    // Challenge creator
+    creatorId String
+    creator   User   @relation("CreatedChallenges", fields: [creatorId], references: [id])
+
+    // Challenge participants
+    participants ChallengeParticipant[]
+}
+
+// Model for challenge participants
+model ChallengeParticipant {
+    id              String   @id @default(cuid())
+    joinedAt        DateTime @default(now())
+    currentProgress Int      @default(0)
+    lastUpdated     DateTime @default(now())
+
+    // Challenge reference
+    challengeId String
+    challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+    // User reference
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([challengeId, userId])
 }
