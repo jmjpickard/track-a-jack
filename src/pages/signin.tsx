@@ -290,9 +290,6 @@ const SignIn: NextPage<SignInProps> = ({
                 Sign up
               </Link>
             </div>
-            <div className="text-center text-sm">
-              Don&apos;t worry, we all forget sometimes.
-            </div>
           </CardFooter>
         </Card>
       </div>
