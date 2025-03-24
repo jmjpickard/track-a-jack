@@ -286,7 +286,7 @@ const SignIn: NextPage<SignInProps> = ({
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm">
               <p>Don&apos;t have an account?</p>
-              <Link href="/signup" className="underline">
+              <Link href="/register" className="underline">
                 Sign up
               </Link>
             </div>

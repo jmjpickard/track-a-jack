@@ -14,7 +14,11 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 
-const Register: React.FC = () => {
+/**
+ * Register component for user signup
+ * Handles user registration with form validation and submission
+ */
+const Register = (): JSX.Element => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -24,20 +28,65 @@ const Register: React.FC = () => {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  /**
+   * Validates the form inputs before submission
+   * Checks for matching passwords, password strength, and valid username format
+   */
+  const validateForm = (): { isValid: boolean; errorMessage?: string } => {
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      return { isValid: false, errorMessage: "Passwords do not match" };
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return {
+        isValid: false,
+        errorMessage: "Password must be at least 8 characters long",
+      };
+    }
+
+    // Validate username format
+    if (username.length < 3) {
+      return {
+        isValid: false,
+        errorMessage: "Username must be at least 3 characters long",
+      };
+    }
+
+    // Check username contains only valid characters
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return {
+        isValid: false,
+        errorMessage:
+          "Username can only contain letters, numbers, underscores and hyphens",
+      };
+    }
+
+    // Check email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return {
+        isValid: false,
+        errorMessage: "Please enter a valid email address",
+      };
+    }
+
+    return { isValid: true };
+  };
+
+  /**
+   * Handles form submission for user registration
+   * Validates inputs and sends registration request to the server
+   */
+  const handleRegister = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
 
     // Validate inputs
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
+    const validation = validateForm();
+    if (!validation.isValid) {
+      setError(validation.errorMessage || "Validation failed");
       setIsSubmitting(false);
       return;
     }
@@ -49,9 +98,9 @@ const Register: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
-          email,
-          username,
+          name: name.trim(),
+          email: email.trim(),
+          username: username.trim(),
           password,
         }),
       });
@@ -66,6 +115,7 @@ const Register: React.FC = () => {
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
+      console.error("Registration error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -118,6 +168,10 @@ const Register: React.FC = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Username can only contain letters, numbers, underscores and
+                    hyphens
+                  </p>
                 </div>
 
                 <div className="grid gap-2">
@@ -129,6 +183,9 @@ const Register: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Password must be at least 8 characters long
+                  </p>
                 </div>
 
                 <div className="grid gap-2">
@@ -144,7 +201,7 @@ const Register: React.FC = () => {
 
                 {error && <p className="text-sm text-red-500">{error}</p>}
 
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} className="mt-2">
                   {isSubmitting ? "Creating Account..." : "Register"}
                 </Button>
               </div>
