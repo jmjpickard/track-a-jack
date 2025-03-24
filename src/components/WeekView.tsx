@@ -79,7 +79,9 @@ export const WeekView: React.FC = () => {
   const addExercise = api.post.addExercise.useMutation({
     onMutate: () => toast.loading("Saving activity..."),
     onSuccess: async (data) => {
+      // Refetch exercise data to ensure all ExerciseItem cards show up-to-date summaries
       await refetch();
+
       const { type, amount, unit } = data;
       const typeFormat = upperFirst(camelCase(type));
       if (isRemove) {

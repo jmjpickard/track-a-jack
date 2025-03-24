@@ -133,94 +133,99 @@ export const Dashboard: React.FC = () => {
   );
 
   // Fetch weekly exercise data
-  const { data: weeklyData, isLoading: weeklyLoading } =
-    api.post.getExerciseByWeek.useQuery(
-      {
-        year: currentYear,
-        week: currentWeek,
+  const {
+    data: weeklyData,
+    isLoading: weeklyLoading,
+    refetch: refetchWeekly,
+  } = api.post.getExerciseByWeek.useQuery(
+    {
+      year: currentYear,
+      week: currentWeek,
+    },
+    {
+      onSuccess: (response: ExerciseData[]) => {
+        setWeeklyRunning(
+          response?.find((d) => d.type === EXERCISE_TYPE.RUNNING)?._sum
+            .amount ?? 0,
+        );
+        setWeeklyPushups(
+          response?.find((d) => d.type === EXERCISE_TYPE.PUSH_UPS)?._sum
+            .amount ?? 0,
+        );
+        setWeeklySitups(
+          response?.find((d) => d.type === EXERCISE_TYPE.SIT_UPS)?._sum
+            .amount ?? 0,
+        );
+        setWeeklySwimming(
+          response?.find((d) => d.type === EXERCISE_TYPE.SWIMMING)?._sum
+            .amount ?? 0,
+        );
+        setWeeklyCycling(
+          response?.find((d) => d.type === EXERCISE_TYPE.CYCLING)?._sum
+            .amount ?? 0,
+        );
+        setWeeklyPullUps(
+          response?.find((d) => d.type === EXERCISE_TYPE.PULL_UPS)?._sum
+            .amount ?? 0,
+        );
       },
-      {
-        onSuccess: (response: ExerciseData[]) => {
-          setWeeklyRunning(
-            response?.find((d) => d.type === EXERCISE_TYPE.RUNNING)?._sum
-              .amount ?? 0,
-          );
-          setWeeklyPushups(
-            response?.find((d) => d.type === EXERCISE_TYPE.PUSH_UPS)?._sum
-              .amount ?? 0,
-          );
-          setWeeklySitups(
-            response?.find((d) => d.type === EXERCISE_TYPE.SIT_UPS)?._sum
-              .amount ?? 0,
-          );
-          setWeeklySwimming(
-            response?.find((d) => d.type === EXERCISE_TYPE.SWIMMING)?._sum
-              .amount ?? 0,
-          );
-          setWeeklyCycling(
-            response?.find((d) => d.type === EXERCISE_TYPE.CYCLING)?._sum
-              .amount ?? 0,
-          );
-          setWeeklyPullUps(
-            response?.find((d) => d.type === EXERCISE_TYPE.PULL_UPS)?._sum
-              .amount ?? 0,
-          );
-        },
-      },
-    );
+    },
+  );
 
   // Fetch yearly exercise data using allExerciseByWeek and aggregating
-  const { data: yearlyData, isLoading: yearlyLoading } =
-    api.post.allExerciseByWeek.useQuery(undefined, {
-      onSuccess: (response) => {
-        if (response) {
-          // Sum up all running data for the year
-          const runningData = response[EXERCISE_TYPE.RUNNING] ?? [];
-          setYearlyRunning(
-            runningData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
-          );
+  const {
+    data: yearlyData,
+    isLoading: yearlyLoading,
+    refetch: refetchYearly,
+  } = api.post.allExerciseByWeek.useQuery(undefined, {
+    onSuccess: (response) => {
+      if (response) {
+        // Sum up all running data for the year
+        const runningData = response[EXERCISE_TYPE.RUNNING] ?? [];
+        setYearlyRunning(
+          runningData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+        );
 
-          // Sum up all pushups data for the year
-          const pushupsData = response[EXERCISE_TYPE.PUSH_UPS] ?? [];
-          setYearlyPushups(
-            pushupsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
-          );
+        // Sum up all pushups data for the year
+        const pushupsData = response[EXERCISE_TYPE.PUSH_UPS] ?? [];
+        setYearlyPushups(
+          pushupsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+        );
 
-          // Sum up all situps data for the year
-          const situpsData = response[EXERCISE_TYPE.SIT_UPS] ?? [];
-          setYearlySitups(
-            situpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
-          );
+        // Sum up all situps data for the year
+        const situpsData = response[EXERCISE_TYPE.SIT_UPS] ?? [];
+        setYearlySitups(
+          situpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+        );
 
-          // Sum up all swimming data for the year
-          const swimmingData = response[EXERCISE_TYPE.SWIMMING] ?? [];
-          setYearlySwimming(
-            swimmingData.reduce(
-              (sum, item) => sum + (item._sum.amount ?? 0),
-              0,
-            ),
-          );
+        // Sum up all swimming data for the year
+        const swimmingData = response[EXERCISE_TYPE.SWIMMING] ?? [];
+        setYearlySwimming(
+          swimmingData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+        );
 
-          // Sum up all cycling data for the year
-          const cyclingData = response[EXERCISE_TYPE.CYCLING] ?? [];
-          setYearlyCycling(
-            cyclingData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
-          );
+        // Sum up all cycling data for the year
+        const cyclingData = response[EXERCISE_TYPE.CYCLING] ?? [];
+        setYearlyCycling(
+          cyclingData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+        );
 
-          // Sum up all pull-ups data for the year
-          const pullUpsData = response[EXERCISE_TYPE.PULL_UPS] ?? [];
-          setYearlyPullUps(
-            pullUpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
-          );
-        }
-      },
-    });
+        // Sum up all pull-ups data for the year
+        const pullUpsData = response[EXERCISE_TYPE.PULL_UPS] ?? [];
+        setYearlyPullUps(
+          pullUpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+        );
+      }
+    },
+  });
 
   // Add exercise mutation
   const addExercise = api.post.addExercise.useMutation({
     onMutate: () => toast.loading("Saving activity..."),
     onSuccess: async (data) => {
-      await refetch();
+      // Refetch all exercise data queries to ensure all ExerciseItem cards show up-to-date summaries
+      await Promise.all([refetch(), refetchWeekly(), refetchYearly()]);
+
       const { type, amount, unit } = data;
       const typeFormat = upperFirst(camelCase(type));
       if (isRemove) {
