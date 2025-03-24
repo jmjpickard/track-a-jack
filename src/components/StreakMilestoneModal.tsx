@@ -78,7 +78,7 @@ export const StreakMilestoneModal = ({
           </div>
 
           <p className="text-center text-sm">
-            You've been consistently active for {streak} days. Keep up the
+            You&apos;ve been consistently active for {streak} days. Keep up the
             amazing work to reach your next milestone!
           </p>
 

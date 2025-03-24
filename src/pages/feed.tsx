@@ -16,11 +16,8 @@ import {
 } from "@/components/ui/card";
 import {
   CalendarDays,
-  Clock,
   Dumbbell,
-  Heart,
   MoreHorizontal,
-  Ruler,
   Timer,
   Users2,
 } from "lucide-react";

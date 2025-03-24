@@ -1,17 +1,11 @@
 import { EXERCISE_TYPE } from "@prisma/client";
 import { groupBy } from "lodash";
 import { z } from "zod";
-import { getStartAndEndDate } from "~/components/WeekView";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { updateStreak } from "~/server/services/streakService";
 
-type ExerciseData = {
-  _sum: { amount: number };
-  type: string;
-  week: number;
-};
 export const postRouter = createTRPCRouter({
   addExercise: protectedProcedure
     .input(

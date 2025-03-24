@@ -16,7 +16,6 @@ export interface ExerciseItemProps {
   subTitle: string;
   type: EXERCISE_TYPE;
   currentValue?: number;
-  setValue: (value: number) => void;
   loading?: boolean;
   target: number;
   itemOptions: number[];
@@ -34,7 +33,6 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   subTitle,
   type,
   currentValue,
-  setValue,
   loading,
   target,
   itemOptions,

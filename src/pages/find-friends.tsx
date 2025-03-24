@@ -110,7 +110,7 @@ export default function FindFriends() {
     onMutate: () => {
       toast.loading("Sending friend request...");
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_data, _variables) => {
       toast.success("Friend request sent successfully!");
       setPendingRequestUserId(null);
       void searchUsersQuery.refetch();

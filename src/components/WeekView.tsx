@@ -140,46 +140,43 @@ export const WeekView: React.FC = () => {
 
   useEffect(() => {
     if (data) {
-      const runningStateDiff = findDiff(EXERCISE_TYPE.RUNNING, runningState);
-      const pushupsStateDiff = findDiff(EXERCISE_TYPE.PUSH_UPS, pushupsState);
-      const situpsStateDiff = findDiff(EXERCISE_TYPE.SIT_UPS, situpsState);
+      findDiff(EXERCISE_TYPE.RUNNING, runningState);
+      findDiff(EXERCISE_TYPE.PUSH_UPS, pushupsState);
+      findDiff(EXERCISE_TYPE.SIT_UPS, situpsState);
     }
-  }, [data, findDiff]);
+  }, [data, findDiff, runningState, pushupsState, situpsState]);
 
   const exerciseItems: ExerciseItemProps[] = [
     {
       title: "Running",
-      subTitle: "Target 12km",
+      subTitle: "Distance",
       type: EXERCISE_TYPE.RUNNING,
       currentValue: runningState,
-      setValue: setRunningState,
       loading: isLoading,
-      target: 12,
-      itemOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      target: 5,
+      itemOptions: [1, 2, 3, 4, 5],
       unit: "km",
       saveExercise,
     },
     {
-      title: "Pushups",
-      subTitle: "Target 200",
+      title: "Push-ups",
+      subTitle: "Count",
       type: EXERCISE_TYPE.PUSH_UPS,
       currentValue: pushupsState,
-      setValue: setPushupsState,
       loading: isLoading,
-      target: 200,
-      itemOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      target: 100,
+      itemOptions: [20, 40, 60, 80, 100],
       unit: "reps",
       saveExercise,
     },
     {
-      title: "Situps",
-      subTitle: "Target 200",
+      title: "Sit-ups",
+      subTitle: "Count",
       type: EXERCISE_TYPE.SIT_UPS,
       currentValue: situpsState,
-      setValue: setSitupsState,
       loading: isLoading,
-      target: 200,
-      itemOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+      target: 100,
+      itemOptions: [20, 40, 60, 80, 100],
       unit: "reps",
       saveExercise,
     },

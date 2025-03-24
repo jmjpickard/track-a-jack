@@ -9,14 +9,18 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   // Setup scheduled jobs for streaks
-  setupScheduledJobs();
+  void setupScheduledJobs();
 
   const port = process.env.PORT ?? 3000;
 
   createServer(async (req, res) => {
     const parsedUrl = parse(req.url ?? "/", true);
     await handle(req, res, parsedUrl);
-  }).listen(port, () => {
-    console.log(`> Ready on http://localhost:${port}`);
-  });
+  })
+    .listen(port, () => {
+      console.log(`> Ready on http://localhost:${port}`);
+    })
+    .on("error", (err) => {
+      console.error("Server error:", err);
+    });
 });

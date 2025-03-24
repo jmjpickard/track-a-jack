@@ -26,11 +26,11 @@ export const StreakDisplay = ({
   className,
 }: StreakDisplayProps) => {
   const session = useSession();
-  const resolvedUserId = userId || session.data?.user.id;
+  const resolvedUserId = userId ?? session.data?.user.id;
 
   const { data: streakData, isLoading } = api.user.getUserStreak.useQuery(
     {
-      userId: resolvedUserId as string,
+      userId: resolvedUserId!,
     },
     {
       enabled: !!resolvedUserId,

@@ -1,11 +1,9 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
 import { NavBar } from "~/components/NavBar";
 import { WeekView } from "~/components/WeekView";
-
-import { api } from "~/utils/api";
 
 export default function Home() {
   const session = useSession();

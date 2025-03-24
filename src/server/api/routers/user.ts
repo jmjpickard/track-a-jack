@@ -335,7 +335,7 @@ export const userRouter = createTRPCRouter({
       }
     }),
 
-  getFriends: protectedProcedure.query(async ({ ctx }) => {
+  getFriends: protectedProcedure.query(async () => {
     try {
       // Temporary empty list until database is fixed
       return [];

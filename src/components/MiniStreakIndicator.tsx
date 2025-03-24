@@ -24,7 +24,7 @@ export const MiniStreakIndicator = ({
 
   const { data: streakData, isLoading } = api.user.getUserStreak.useQuery(
     {
-      userId: userId as string,
+      userId: userId!,
     },
     {
       enabled: !!userId,

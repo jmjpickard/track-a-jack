@@ -5,11 +5,7 @@ import {
   signIn,
   getCsrfToken,
 } from "next-auth/react";
-import type {
-  LiteralUnion,
-  ClientSafeProvider,
-  SignInResponse,
-} from "next-auth/react";
+import type { LiteralUnion, ClientSafeProvider } from "next-auth/react";
 import type { NextPage } from "next";
 import type { Session } from "next-auth";
 import { useRouter } from "next/router";

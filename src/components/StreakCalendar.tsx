@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EXERCISE_TYPE } from "@prisma/client";
+import type { EXERCISE_TYPE } from "@prisma/client";
 
 interface StreakCalendarProps {
   userId?: string;
@@ -43,7 +43,7 @@ interface ActivityData {
  */
 export const StreakCalendar = ({ userId, className }: StreakCalendarProps) => {
   const session = useSession();
-  const resolvedUserId = userId || session.data?.user.id;
+  const resolvedUserId = userId ?? session.data?.user.id;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<ActivityData | null>(null);
 
@@ -54,7 +54,7 @@ export const StreakCalendar = ({ userId, className }: StreakCalendarProps) => {
   // Get activity data for the current month
   const { data, isLoading } = api.user.getActivityCalendar.useQuery(
     {
-      userId: resolvedUserId as string,
+      userId: resolvedUserId!,
       month: monthNumber,
       year: yearNumber,
     },
