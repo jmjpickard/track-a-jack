@@ -30,28 +30,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-/**
- * Formats a date relative to now (e.g. "2d ago")
- */
-const formatDate = (date: Date) => {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) {
-    return `${days}d ago`;
-  } else if (hours > 0) {
-    return `${hours}h ago`;
-  } else if (minutes > 0) {
-    return `${minutes}m ago`;
-  } else {
-    return "Just now";
-  }
-};
+import Link from "next/link";
+import { formatDate } from "~/utils/date";
 
 /**
  * Returns a formatted string and icon for the exercise type
@@ -98,17 +78,24 @@ const ActivityPost = ({ post }: { post: Post }) => {
   const userImage = post.user.image;
   const exercises = post.exercises;
   const createdAt = new Date(post.createdAt);
+  const userId = post.user.id;
 
   return (
     <Card className="mb-4">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-4">
-          <Avatar>
-            <AvatarImage src={userImage ?? ""} alt={userName} />
-            <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-          </Avatar>
+          <Link href={`/profile/${userId}`}>
+            <Avatar className="cursor-pointer">
+              <AvatarImage src={userImage ?? ""} alt={userName} />
+              <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+            </Avatar>
+          </Link>
           <div>
-            <CardTitle className="text-base">{userName}</CardTitle>
+            <Link href={`/profile/${userId}`}>
+              <CardTitle className="cursor-pointer text-base hover:underline">
+                {userName}
+              </CardTitle>
+            </Link>
             <CardDescription className="flex items-center gap-1 text-xs">
               <CalendarDays className="h-3 w-3" /> {formatDate(createdAt)}
             </CardDescription>

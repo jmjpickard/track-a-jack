@@ -275,4 +275,48 @@ export const postRouter = createTRPCRouter({
         });
       }
     }),
+
+  // Get a user's activity posts
+  getUserActivity: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string().min(1),
+        limit: z.number().min(1).max(100).default(10),
+        cursor: z.number().nullish(), // For pagination
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const posts = await ctx.db.activityPost.findMany({
+          where: {
+            userId: input.userId,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: input.limit + 1, // Take an extra item to determine if there's more
+          cursor: input.cursor ? { id: input.cursor } : undefined,
+          include: {
+            exercises: true,
+          },
+        });
+
+        let nextCursor: typeof input.cursor = undefined;
+        if (posts.length > input.limit) {
+          const nextItem = posts.pop();
+          nextCursor = nextItem?.id;
+        }
+
+        return {
+          posts,
+          nextCursor,
+        };
+      } catch (error) {
+        console.error("Error in getUserActivity:", error);
+        return {
+          posts: [],
+          nextCursor: undefined,
+        };
+      }
+    }),
 });

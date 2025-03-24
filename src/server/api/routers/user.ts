@@ -22,6 +22,88 @@ export const userRouter = createTRPCRouter({
       });
     }),
 
+  // Get user profile information
+  getUserProfile: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string().min(1),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        // Get user basic info
+        const user = await ctx.db.user.findUnique({
+          where: { id: input.userId },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+            emailVerified: true, // Using as a proxy for "joined date"
+          },
+        });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
+        }
+
+        // Count total activities
+        const activityCount = await ctx.db.activityPost.count({
+          where: { userId: input.userId },
+        });
+
+        // Count friends
+        const friendCount = await ctx.db.friendship.count({
+          where: { userId: input.userId },
+        });
+
+        // Get exercise statistics
+        const exercises = await ctx.db.exercise.findMany({
+          where: { createdById: input.userId },
+          select: {
+            type: true,
+            amount: true,
+          },
+        });
+
+        // Calculate totals by exercise type
+        const stats = {
+          pushUps: 0,
+          sitUps: 0,
+          running: 0,
+        };
+
+        exercises.forEach((exercise) => {
+          if (exercise.type === "PUSH_UPS") {
+            stats.pushUps += exercise.amount;
+          } else if (exercise.type === "SIT_UPS") {
+            stats.sitUps += exercise.amount;
+          } else if (exercise.type === "RUNNING") {
+            stats.running += exercise.amount;
+          }
+        });
+
+        return {
+          ...user,
+          joinedAt: user.emailVerified ?? new Date(),
+          activityCount,
+          friendCount,
+          stats,
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch user profile",
+        });
+      }
+    }),
+
   // Friend-related procedures
   searchUsers: protectedProcedure
     .input(
