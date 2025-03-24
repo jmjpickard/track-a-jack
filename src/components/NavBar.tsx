@@ -49,11 +49,6 @@ export const NavBar: React.FC = () => {
               </Link>
             </Button>
             <Button variant="link" asChild>
-              <Link className="text-lg" href="/track">
-                Track
-              </Link>
-            </Button>
-            <Button variant="link" asChild>
               <Link className="text-lg" href="/compete">
                 Compete
               </Link>
