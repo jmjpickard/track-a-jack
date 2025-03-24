@@ -86,7 +86,7 @@ const Register = (): JSX.Element => {
     // Validate inputs
     const validation = validateForm();
     if (!validation.isValid) {
-      setError(validation.errorMessage || "Validation failed");
+      setError(validation.errorMessage ?? "Validation failed");
       setIsSubmitting(false);
       return;
     }
