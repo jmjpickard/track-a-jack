@@ -180,40 +180,54 @@ export const Dashboard: React.FC = () => {
   } = api.post.allExerciseByWeek.useQuery(undefined, {
     onSuccess: (response) => {
       if (response) {
-        // Sum up all running data for the year
+        const currentYear = new Date().getFullYear();
+
+        // Sum up all running data for the current year
         const runningData = response[EXERCISE_TYPE.RUNNING] ?? [];
         setYearlyRunning(
-          runningData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          runningData
+            .filter((item) => item.year === currentYear)
+            .reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
         );
 
-        // Sum up all pushups data for the year
+        // Sum up all pushups data for the current year
         const pushupsData = response[EXERCISE_TYPE.PUSH_UPS] ?? [];
         setYearlyPushups(
-          pushupsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          pushupsData
+            .filter((item) => item.year === currentYear)
+            .reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
         );
 
-        // Sum up all situps data for the year
+        // Sum up all situps data for the current year
         const situpsData = response[EXERCISE_TYPE.SIT_UPS] ?? [];
         setYearlySitups(
-          situpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          situpsData
+            .filter((item) => item.year === currentYear)
+            .reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
         );
 
-        // Sum up all swimming data for the year
+        // Sum up all swimming data for the current year
         const swimmingData = response[EXERCISE_TYPE.SWIMMING] ?? [];
         setYearlySwimming(
-          swimmingData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          swimmingData
+            .filter((item) => item.year === currentYear)
+            .reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
         );
 
-        // Sum up all cycling data for the year
+        // Sum up all cycling data for the current year
         const cyclingData = response[EXERCISE_TYPE.CYCLING] ?? [];
         setYearlyCycling(
-          cyclingData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          cyclingData
+            .filter((item) => item.year === currentYear)
+            .reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
         );
 
-        // Sum up all pull-ups data for the year
+        // Sum up all pull-ups data for the current year
         const pullUpsData = response[EXERCISE_TYPE.PULL_UPS] ?? [];
         setYearlyPullUps(
-          pullUpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          pullUpsData
+            .filter((item) => item.year === currentYear)
+            .reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
         );
       }
     },

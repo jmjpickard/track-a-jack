@@ -67,7 +67,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
    */
   const handleChallengeClick = () => {
     if (challenge) {
-      void router.push(`/challenges/${challenge.id}`);
+      void router.push(`/compete/${challenge.id}`);
     }
   };
 

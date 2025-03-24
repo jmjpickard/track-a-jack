@@ -198,7 +198,7 @@ export const postRouter = createTRPCRouter({
   allExerciseByWeek: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
     const calculation = await ctx.db.exercise.groupBy({
-      by: ["type", "week"],
+      by: ["type", "week", "year"],
       _sum: {
         amount: true,
       },
