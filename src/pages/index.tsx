@@ -35,10 +35,12 @@ export default function Home() {
           <Dashboard />
         ) : (
           <div className="flex flex-col content-center items-center gap-5 p-16 text-center">
-            <div>12km</div>
-            <div>200 pushups</div>
-            <div>200 situps</div>
-            <div>Do this every week and feel better</div>
+            <div className="text-2xl font-bold">Track your fitness journey</div>
+            <div className="text-lg">Track your exercise</div>
+            <div className="text-lg">
+              Compete in challenges and build streaks
+            </div>
+            <div className="text-lg">Feel better and get stronger</div>
           </div>
         )}
       </main>
