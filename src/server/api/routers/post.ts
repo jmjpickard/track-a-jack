@@ -13,9 +13,12 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         type: z.enum([
-          EXERCISE_TYPE.PUSH_UPS,
-          EXERCISE_TYPE.RUNNING,
-          EXERCISE_TYPE.SIT_UPS,
+          "PUSH_UPS",
+          "RUNNING",
+          "SIT_UPS",
+          "SWIMMING",
+          "CYCLING",
+          "PULL_UPS",
         ]),
         amount: z.number(),
         unit: z.string(),
@@ -211,9 +214,12 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         exerciseType: z.enum([
-          EXERCISE_TYPE.PUSH_UPS,
-          EXERCISE_TYPE.RUNNING,
-          EXERCISE_TYPE.SIT_UPS,
+          "PUSH_UPS",
+          "RUNNING",
+          "SIT_UPS",
+          "SWIMMING",
+          "CYCLING",
+          "PULL_UPS",
         ]),
         maxWeek: z.number(),
       }),

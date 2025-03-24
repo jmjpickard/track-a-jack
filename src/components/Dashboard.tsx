@@ -16,7 +16,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StreakDisplay } from "./StreakDisplay";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Trophy, Activity } from "lucide-react";
+import {
+  Dumbbell,
+  Trophy,
+  Activity,
+  Timer,
+  Bike,
+  Waves,
+  MoveUp,
+} from "lucide-react";
 import { getWeekNumber } from "./WeekView";
 
 interface ExerciseData {
@@ -71,16 +79,25 @@ export const Dashboard: React.FC = () => {
   const [runningState, setRunningState] = useState<number | undefined>();
   const [pushupsState, setPushupsState] = useState<number | undefined>();
   const [situpsState, setSitupsState] = useState<number | undefined>();
+  const [swimmingState, setSwimmingState] = useState<number | undefined>();
+  const [cyclingState, setCyclingState] = useState<number | undefined>();
+  const [pullUpsState, setPullUpsState] = useState<number | undefined>();
 
   // States for weekly exercise tracking
   const [weeklyRunning, setWeeklyRunning] = useState<number>(0);
   const [weeklyPushups, setWeeklyPushups] = useState<number>(0);
   const [weeklySitups, setWeeklySitups] = useState<number>(0);
+  const [weeklySwimming, setWeeklySwimming] = useState<number>(0);
+  const [weeklyCycling, setWeeklyCycling] = useState<number>(0);
+  const [weeklyPullUps, setWeeklyPullUps] = useState<number>(0);
 
   // States for yearly exercise tracking
   const [yearlyRunning, setYearlyRunning] = useState<number>(0);
   const [yearlyPushups, setYearlyPushups] = useState<number>(0);
   const [yearlySitups, setYearlySitups] = useState<number>(0);
+  const [yearlySwimming, setYearlySwimming] = useState<number>(0);
+  const [yearlyCycling, setYearlyCycling] = useState<number>(0);
+  const [yearlyPullUps, setYearlyPullUps] = useState<number>(0);
 
   // Fetch today's exercise data
   const { data, refetch, isLoading } = api.post.getExerciseByDay.useQuery(
@@ -97,6 +114,18 @@ export const Dashboard: React.FC = () => {
         );
         setSitupsState(
           response?.find((d) => d.type === EXERCISE_TYPE.SIT_UPS)?._sum
+            .amount ?? 0,
+        );
+        setSwimmingState(
+          response?.find((d) => d.type === EXERCISE_TYPE.SWIMMING)?._sum
+            .amount ?? 0,
+        );
+        setCyclingState(
+          response?.find((d) => d.type === EXERCISE_TYPE.CYCLING)?._sum
+            .amount ?? 0,
+        );
+        setPullUpsState(
+          response?.find((d) => d.type === EXERCISE_TYPE.PULL_UPS)?._sum
             .amount ?? 0,
         );
       },
@@ -124,6 +153,18 @@ export const Dashboard: React.FC = () => {
             response?.find((d) => d.type === EXERCISE_TYPE.SIT_UPS)?._sum
               .amount ?? 0,
           );
+          setWeeklySwimming(
+            response?.find((d) => d.type === EXERCISE_TYPE.SWIMMING)?._sum
+              .amount ?? 0,
+          );
+          setWeeklyCycling(
+            response?.find((d) => d.type === EXERCISE_TYPE.CYCLING)?._sum
+              .amount ?? 0,
+          );
+          setWeeklyPullUps(
+            response?.find((d) => d.type === EXERCISE_TYPE.PULL_UPS)?._sum
+              .amount ?? 0,
+          );
         },
       },
     );
@@ -149,6 +190,27 @@ export const Dashboard: React.FC = () => {
           const situpsData = response[EXERCISE_TYPE.SIT_UPS] ?? [];
           setYearlySitups(
             situpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          );
+
+          // Sum up all swimming data for the year
+          const swimmingData = response[EXERCISE_TYPE.SWIMMING] ?? [];
+          setYearlySwimming(
+            swimmingData.reduce(
+              (sum, item) => sum + (item._sum.amount ?? 0),
+              0,
+            ),
+          );
+
+          // Sum up all cycling data for the year
+          const cyclingData = response[EXERCISE_TYPE.CYCLING] ?? [];
+          setYearlyCycling(
+            cyclingData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
+          );
+
+          // Sum up all pull-ups data for the year
+          const pullUpsData = response[EXERCISE_TYPE.PULL_UPS] ?? [];
+          setYearlyPullUps(
+            pullUpsData.reduce((sum, item) => sum + (item._sum.amount ?? 0), 0),
           );
         }
       },
@@ -246,6 +308,48 @@ export const Dashboard: React.FC = () => {
       weeklyTotal: weeklySitups,
       yearlyTotal: yearlySitups,
       challenge: getChallengeProgress(EXERCISE_TYPE.SIT_UPS),
+    },
+    {
+      title: "Swimming",
+      subTitle: "Distance",
+      type: EXERCISE_TYPE.SWIMMING,
+      currentValue: swimmingState,
+      loading: isLoading ?? weeklyLoading ?? yearlyLoading,
+      target: 1,
+      itemOptions: [0.5, 1, 1.5, 2, 2.5],
+      unit: "km",
+      saveExercise,
+      weeklyTotal: weeklySwimming,
+      yearlyTotal: yearlySwimming,
+      challenge: getChallengeProgress(EXERCISE_TYPE.SWIMMING),
+    },
+    {
+      title: "Cycling",
+      subTitle: "Distance",
+      type: EXERCISE_TYPE.CYCLING,
+      currentValue: cyclingState,
+      loading: isLoading ?? weeklyLoading ?? yearlyLoading,
+      target: 10,
+      itemOptions: [5, 10, 15, 20, 25],
+      unit: "km",
+      saveExercise,
+      weeklyTotal: weeklyCycling,
+      yearlyTotal: yearlyCycling,
+      challenge: getChallengeProgress(EXERCISE_TYPE.CYCLING),
+    },
+    {
+      title: "Pull-ups",
+      subTitle: "Count",
+      type: EXERCISE_TYPE.PULL_UPS,
+      currentValue: pullUpsState,
+      loading: isLoading ?? weeklyLoading ?? yearlyLoading,
+      target: 30,
+      itemOptions: [5, 10, 15, 20, 30],
+      unit: "reps",
+      saveExercise,
+      weeklyTotal: weeklyPullUps,
+      yearlyTotal: yearlyPullUps,
+      challenge: getChallengeProgress(EXERCISE_TYPE.PULL_UPS),
     },
   ];
 
@@ -361,6 +465,12 @@ export const Dashboard: React.FC = () => {
                                   "Sit-ups"}
                                 {exercise.type === EXERCISE_TYPE.RUNNING &&
                                   "Running"}
+                                {exercise.type === EXERCISE_TYPE.SWIMMING &&
+                                  "Swimming"}
+                                {exercise.type === EXERCISE_TYPE.CYCLING &&
+                                  "Cycling"}
+                                {exercise.type === EXERCISE_TYPE.PULL_UPS &&
+                                  "Pull-ups"}
                               </div>
                               <Badge variant="outline">
                                 {exercise.amount} {exercise.unit ?? "reps"}

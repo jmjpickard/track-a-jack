@@ -14,7 +14,16 @@ import { useState } from "react";
 import { api } from "~/utils/api";
 import Head from "next/head";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Loader2,
+  Dumbbell,
+  Timer,
+  MoveUp,
+  Bike,
+  Waves,
+} from "lucide-react";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
@@ -103,7 +112,13 @@ export default function CreateChallengePage() {
     createChallenge.mutate({
       name,
       description: description || undefined,
-      type,
+      type: type as
+        | "RUNNING"
+        | "PUSH_UPS"
+        | "SIT_UPS"
+        | "SWIMMING"
+        | "CYCLING"
+        | "PULL_UPS",
       goalAmount: parseInt(goalAmount, 10),
       startDate: new Date(startDate),
       endDate: new Date(endDate),
@@ -192,21 +207,72 @@ export default function CreateChallengePage() {
                         value={EXERCISE_TYPE.PUSH_UPS}
                         id="push-ups"
                       />
-                      <Label htmlFor="push-ups">Push-ups</Label>
+                      <Label
+                        htmlFor="push-ups"
+                        className="flex items-center gap-1"
+                      >
+                        <Dumbbell className="h-4 w-4" /> Push-ups
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={EXERCISE_TYPE.SIT_UPS}
                         id="sit-ups"
                       />
-                      <Label htmlFor="sit-ups">Sit-ups</Label>
+                      <Label
+                        htmlFor="sit-ups"
+                        className="flex items-center gap-1"
+                      >
+                        <MoveUp className="h-4 w-4" /> Sit-ups
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={EXERCISE_TYPE.RUNNING}
                         id="running"
                       />
-                      <Label htmlFor="running">Running (km)</Label>
+                      <Label
+                        htmlFor="running"
+                        className="flex items-center gap-1"
+                      >
+                        <Timer className="h-4 w-4" /> Running (km)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={EXERCISE_TYPE.SWIMMING}
+                        id="swimming"
+                      />
+                      <Label
+                        htmlFor="swimming"
+                        className="flex items-center gap-1"
+                      >
+                        <Waves className="h-4 w-4" /> Swimming (km)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={EXERCISE_TYPE.CYCLING}
+                        id="cycling"
+                      />
+                      <Label
+                        htmlFor="cycling"
+                        className="flex items-center gap-1"
+                      >
+                        <Bike className="h-4 w-4" /> Cycling (km)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={EXERCISE_TYPE.PULL_UPS}
+                        id="pull-ups"
+                      />
+                      <Label
+                        htmlFor="pull-ups"
+                        className="flex items-center gap-1"
+                      >
+                        <Dumbbell className="h-4 w-4" rotate={90} /> Pull-ups
+                      </Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -230,7 +296,13 @@ export default function CreateChallengePage() {
                         ? "push-ups"
                         : type === EXERCISE_TYPE.SIT_UPS
                           ? "sit-ups"
-                          : "kilometers"}
+                          : type === EXERCISE_TYPE.PULL_UPS
+                            ? "pull-ups"
+                            : type === EXERCISE_TYPE.SWIMMING
+                              ? "kilometers (swimming)"
+                              : type === EXERCISE_TYPE.CYCLING
+                                ? "kilometers (cycling)"
+                                : "kilometers (running)"}
                     </span>
                   </div>
                   {formErrors.goalAmount && (

@@ -21,6 +21,9 @@ import {
   Clock,
   Activity,
   Flame,
+  Bike,
+  Waves,
+  MoveUp,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StreakDisplay } from "~/components/StreakDisplay";
@@ -36,9 +39,18 @@ const getExerciseInfo = (type: EXERCISE_TYPE) => {
     case EXERCISE_TYPE.PUSH_UPS:
       return { label: "Push-ups", icon: <Dumbbell className="h-4 w-4" /> };
     case EXERCISE_TYPE.SIT_UPS:
-      return { label: "Sit-ups", icon: <Dumbbell className="h-4 w-4" /> };
+      return { label: "Sit-ups", icon: <MoveUp className="h-4 w-4" /> };
     case EXERCISE_TYPE.RUNNING:
       return { label: "Running", icon: <Timer className="h-4 w-4" /> };
+    case EXERCISE_TYPE.SWIMMING:
+      return { label: "Swimming", icon: <Waves className="h-4 w-4" /> };
+    case EXERCISE_TYPE.CYCLING:
+      return { label: "Cycling", icon: <Bike className="h-4 w-4" /> };
+    case EXERCISE_TYPE.PULL_UPS:
+      return {
+        label: "Pull-ups",
+        icon: <Dumbbell className="h-4 w-4" rotate={90} />,
+      };
     default:
       return { label: type, icon: <Dumbbell className="h-4 w-4" /> };
   }

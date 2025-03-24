@@ -10,7 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { useRouter } from "next/router";
-import { Trophy, Users } from "lucide-react";
+import {
+  Trophy,
+  Users,
+  Dumbbell,
+  Timer,
+  MoveUp,
+  Bike,
+  Waves,
+} from "lucide-react";
 import { api } from "~/utils/api";
 import { useState } from "react";
 
@@ -104,8 +112,33 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
         return "Sit-ups";
       case EXERCISE_TYPE.RUNNING:
         return "Km run";
+      case EXERCISE_TYPE.SWIMMING:
+        return "Km swim";
+      case EXERCISE_TYPE.CYCLING:
+        return "Km cycled";
+      case EXERCISE_TYPE.PULL_UPS:
+        return "Pull-ups";
       default:
         return "Exercise";
+    }
+  };
+
+  const getExerciseTypeIcon = (type: EXERCISE_TYPE) => {
+    switch (type) {
+      case EXERCISE_TYPE.PUSH_UPS:
+        return <Dumbbell className="h-4 w-4" />;
+      case EXERCISE_TYPE.SIT_UPS:
+        return <MoveUp className="h-4 w-4" />;
+      case EXERCISE_TYPE.RUNNING:
+        return <Timer className="h-4 w-4" />;
+      case EXERCISE_TYPE.SWIMMING:
+        return <Waves className="h-4 w-4" />;
+      case EXERCISE_TYPE.CYCLING:
+        return <Bike className="h-4 w-4" />;
+      case EXERCISE_TYPE.PULL_UPS:
+        return <Dumbbell className="h-4 w-4" rotate={90} />;
+      default:
+        return <Dumbbell className="h-4 w-4" />;
     }
   };
 
@@ -122,7 +155,8 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-2 pb-2">
         <div className="flex justify-between text-sm">
-          <span>
+          <span className="flex items-center gap-1">
+            {getExerciseTypeIcon(type)}
             Goal: {goalAmount} {getExerciseTypeLabel(type)}
           </span>
           <span className="flex items-center gap-1">

@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EXERCISE_TYPE } from "@prisma/client";
 import { formatDistanceToNow } from "date-fns";
+import { Dumbbell, Timer, MoveUp, Bike, Waves } from "lucide-react";
 
 // Define types for activity posts
 type ActivityExercise = {
@@ -75,8 +76,33 @@ export const ChallengeActivityFeed: React.FC<ChallengeActivityFeedProps> = ({
         return "Sit-ups";
       case EXERCISE_TYPE.RUNNING:
         return "Running";
+      case EXERCISE_TYPE.SWIMMING:
+        return "Swimming";
+      case EXERCISE_TYPE.CYCLING:
+        return "Cycling";
+      case EXERCISE_TYPE.PULL_UPS:
+        return "Pull-ups";
       default:
         return "Exercise";
+    }
+  };
+
+  const getExerciseTypeIcon = (type: EXERCISE_TYPE) => {
+    switch (type) {
+      case EXERCISE_TYPE.PUSH_UPS:
+        return <Dumbbell className="h-4 w-4" />;
+      case EXERCISE_TYPE.SIT_UPS:
+        return <MoveUp className="h-4 w-4" />;
+      case EXERCISE_TYPE.RUNNING:
+        return <Timer className="h-4 w-4" />;
+      case EXERCISE_TYPE.SWIMMING:
+        return <Waves className="h-4 w-4" />;
+      case EXERCISE_TYPE.CYCLING:
+        return <Bike className="h-4 w-4" />;
+      case EXERCISE_TYPE.PULL_UPS:
+        return <Dumbbell className="h-4 w-4" rotate={90} />;
+      default:
+        return <Dumbbell className="h-4 w-4" />;
     }
   };
 
@@ -143,7 +169,11 @@ export const ChallengeActivityFeed: React.FC<ChallengeActivityFeedProps> = ({
                 </div>
                 <p className="text-sm">
                   Completed{" "}
-                  <Badge variant="outline" className="font-normal">
+                  <Badge
+                    variant="outline"
+                    className="flex items-center gap-1 font-normal"
+                  >
+                    {getExerciseTypeIcon(challengeType)}
                     {totalForExerciseType} {getExerciseTypeLabel(challengeType)}
                   </Badge>
                 </p>

@@ -95,6 +95,9 @@ enum EXERCISE_TYPE {
     RUNNING
     PUSH_UPS
     SIT_UPS
+    SWIMMING
+    CYCLING
+    PULL_UPS
 }
 
 model Exercise {
