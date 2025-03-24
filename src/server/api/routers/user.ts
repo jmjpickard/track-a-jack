@@ -217,6 +217,20 @@ export const userRouter = createTRPCRouter({
 
         const senderId = ctx.session.user.id;
 
+        // Check if users exist
+        const receiver = await ctx.db.user.findUnique({
+          where: { id: input.receiverId },
+          select: { id: true },
+        });
+
+        if (!receiver) {
+          console.error("Receiver does not exist:", input.receiverId);
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "User not found",
+          });
+        }
+
         // Check if a request already exists
         const existingRequest = await ctx.db.friendRequest.findUnique({
           where: {
@@ -252,14 +266,35 @@ export const userRouter = createTRPCRouter({
         }
 
         // Create the friend request
-        return ctx.db.friendRequest.create({
+        const newRequest = await ctx.db.friendRequest.create({
           data: {
             senderId,
             receiverId: input.receiverId,
           },
         });
+
+        console.log("Friend request created successfully:", newRequest);
+        return newRequest;
       } catch (error) {
         console.error("Error in sendFriendRequest:", error);
+
+        // Check if it's a Prisma error and handle it appropriately
+        if (error instanceof Error) {
+          if (error.message.includes("Foreign key constraint failed")) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Invalid user ID provided",
+            });
+          } else if (error.message.includes("Unique constraint failed")) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Friend request already exists",
+            });
+          } else if (error instanceof TRPCError) {
+            throw error;
+          }
+        }
+
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to send friend request",

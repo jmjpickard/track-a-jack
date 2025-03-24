@@ -107,8 +107,9 @@ export default function FindFriends() {
 
   // Mutations
   const sendFriendRequestMutation = api.user.sendFriendRequest.useMutation({
-    onMutate: () => {
-      toast.loading("Sending friend request...");
+    onMutate: (variables) => {
+      toast.loading(`Sending friend request...`);
+      setPendingRequestUserId(variables.receiverId);
     },
     onSuccess: (_data, _variables) => {
       toast.success("Friend request sent successfully!");
@@ -116,13 +117,33 @@ export default function FindFriends() {
       void searchUsersQuery.refetch();
     },
     onError: (error) => {
-      toast.error(`Failed to send request: ${error.message}`);
+      const errorMessage = error.message || "Unknown error occurred";
+
+      // Handle specific error types with customized messages
+      if (errorMessage.includes("User not found")) {
+        toast.error("User no longer exists or was deleted");
+      } else if (
+        errorMessage.includes("already sent") ||
+        errorMessage.includes("already exists")
+      ) {
+        toast.error("You've already sent a request to this user");
+      } else if (errorMessage.includes("already friends")) {
+        toast.error("You're already friends with this user");
+      } else {
+        toast.error(`Failed to send request: ${errorMessage}`);
+      }
+
+      console.error("Friend request error:", error);
       setPendingRequestUserId(null);
     },
   });
 
   const handleSendFriendRequest = (userId: string) => {
-    setPendingRequestUserId(userId);
+    if (!userId) {
+      toast.error("Invalid user selected");
+      return;
+    }
+
     sendFriendRequestMutation.mutate({ receiverId: userId });
   };
 
