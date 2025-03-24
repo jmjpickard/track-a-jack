@@ -53,9 +53,8 @@ export const ActivityDrawer: React.FC<DrawerProps> = ({
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button className="flex flex-row gap-3" variant="secondary">
-          <div>Log activity</div>
-          <PlusCircledIcon />
+        <Button className="h-10 w-10 rounded-full p-0" variant="secondary">
+          <PlusCircledIcon className="h-6 w-6" />
         </Button>
       </DrawerTrigger>
       <DrawerContent>

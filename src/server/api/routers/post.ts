@@ -6,6 +6,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { updateStreak } from "~/server/services/streakService";
 import { updateChallengeProgress } from "~/server/services/challengeService";
+import { getWeekNumber } from "~/components/WeekView";
 
 export const postRouter = createTRPCRouter({
   addExercise: protectedProcedure
@@ -18,28 +19,32 @@ export const postRouter = createTRPCRouter({
         ]),
         amount: z.number(),
         unit: z.string(),
-        week: z.number(),
-        year: z.number(),
+        week: z.number(), // Keep for backward compatibility, but will be overridden
+        year: z.number(), // Keep for backward compatibility, but will be overridden
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
       try {
-        // Create exercise
+        // Calculate current week and year
+        const now = new Date();
+        const currentWeek = getWeekNumber(now);
+        const currentYear = now.getFullYear();
+
+        // Create exercise - override week/year with current values
         const result = await ctx.db.exercise.create({
           data: {
             type: input.type,
             amount: input.amount,
             unit: input.unit,
-            week: input.week,
-            year: input.year,
+            week: currentWeek,
+            year: currentYear,
             createdById: userId,
           },
         });
 
         // Get or create activity post group for today
-        const now = new Date();
         const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
 
         // Find recent activity post
@@ -101,6 +106,70 @@ export const postRouter = createTRPCRouter({
         });
       }
     }),
+
+  // Get exercises for the current day
+  getExerciseByDay: protectedProcedure.query(({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return ctx.db.exercise.groupBy({
+      by: ["type"],
+      _sum: {
+        amount: true,
+      },
+      where: {
+        createdById: userId,
+        createdAt: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+    });
+  }),
+
+  // Get recent activity posts
+  getRecentActivityPosts: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50).default(5),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      try {
+        return await ctx.db.activityPost.findMany({
+          where: {
+            userId,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: input.limit,
+          include: {
+            exercises: {
+              select: {
+                id: true,
+                type: true,
+                amount: true,
+                unit: true,
+              },
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error in getRecentActivityPosts:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch recent activity posts",
+        });
+      }
+    }),
+
+  // Keep existing endpoints below
   getExerciseByWeek: protectedProcedure
     .input(
       z.object({

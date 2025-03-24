@@ -7,9 +7,21 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import type { EXERCISE_TYPE } from "@prisma/client";
-import { ReloadIcon } from "@radix-ui/react-icons";
 import { ActivityDrawer } from "./ActivityDrawer";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/router";
+
+interface Challenge {
+  id: string;
+  name: string;
+  type: EXERCISE_TYPE;
+  goalAmount: number;
+  startDate: Date;
+  endDate: Date;
+  currentProgress: number;
+  lastUpdated: Date;
+}
 
 export interface ExerciseItemProps {
   title: string;
@@ -20,6 +32,9 @@ export interface ExerciseItemProps {
   target: number;
   itemOptions: number[];
   unit: string;
+  weeklyTotal?: number;
+  yearlyTotal?: number;
+  challenge?: Challenge | null;
   saveExercise: (
     type: EXERCISE_TYPE,
     amount: number,
@@ -32,52 +47,37 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
   title,
   subTitle,
   type,
-  currentValue,
   loading,
   target,
   itemOptions,
   unit,
+  weeklyTotal = 0,
+  yearlyTotal = 0,
+  challenge,
   saveExercise,
 }) => {
-  const pctCompleteNoDecimalPlaces = Math.floor(
-    ((currentValue ?? 0) / target) * 100,
-  );
+  const router = useRouter();
 
-  const numStyle =
-    pctCompleteNoDecimalPlaces >= 100
-      ? "bg-emerald-400 transition-all"
-      : "bg-gray-500";
+  const challengeProgress = challenge
+    ? Math.round((challenge.currentProgress / challenge.goalAmount) * 100)
+    : null;
 
-  const animation =
-    pctCompleteNoDecimalPlaces >= 100 ? "animate-celebration" : "";
+  /**
+   * Navigates to the challenge detail page when a challenge is clicked
+   */
+  const handleChallengeClick = () => {
+    if (challenge) {
+      void router.push(`/challenges/${challenge.id}`);
+    }
+  };
 
   return (
     <Card>
-      <CardHeader className="flex flex-row justify-between ">
+      <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>{title}</CardTitle>
           <CardDescription>{subTitle}</CardDescription>
         </div>
-        <div className="flex flex-row items-center justify-center gap-5">
-          <Progress className="w-20" value={pctCompleteNoDecimalPlaces} />
-          <div>{pctCompleteNoDecimalPlaces}%</div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-row items-center gap-10">
-        {loading ? (
-          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <div
-            className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-full text-white",
-              numStyle,
-              animation,
-            )}
-          >
-            {currentValue}
-          </div>
-        )}
-
         <ActivityDrawer
           type={type}
           title={title}
@@ -85,6 +85,35 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
           unit={unit}
           onConfirm={saveExercise}
         />
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="rounded-md bg-muted p-2">
+            <div className="text-muted-foreground">This week</div>
+            <div className="font-medium">
+              {weeklyTotal} {unit}
+            </div>
+          </div>
+          <div className="rounded-md bg-muted p-2">
+            <div className="text-muted-foreground">This year</div>
+            <div className="font-medium">
+              {yearlyTotal} {unit}
+            </div>
+          </div>
+        </div>
+
+        {challenge && (
+          <div
+            className="cursor-pointer rounded-md border p-2 transition-colors hover:bg-muted/50"
+            onClick={handleChallengeClick}
+          >
+            <div className="flex justify-between">
+              <div className="text-sm font-medium">{challenge.name}</div>
+              <Badge variant="outline">{challengeProgress}%</Badge>
+            </div>
+            <Progress className="mt-2 h-2" value={challengeProgress ?? 0} />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

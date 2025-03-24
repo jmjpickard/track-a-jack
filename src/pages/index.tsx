@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
 import { NavBar } from "~/components/NavBar";
-import { WeekView } from "~/components/WeekView";
+import { Dashboard } from "~/components/Dashboard";
 
 export default function Home() {
   const session = useSession();
@@ -32,7 +32,7 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center bg-accent font-mono text-primary">
         <NavBar />
         {isAuth ? (
-          <WeekView />
+          <Dashboard />
         ) : (
           <div className="flex flex-col content-center items-center gap-5 p-16 text-center">
             <div>12km</div>

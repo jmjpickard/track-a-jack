@@ -388,4 +388,52 @@ export const challengeRouter = createTRPCRouter({
         isParticipating,
       };
     }),
+
+  /**
+   * Get active challenges for the current user with their progress
+   */
+  getActiveChallengesForUser: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const now = new Date();
+
+    // Get user's active challenges with their progress
+    const challenges = await ctx.db.challenge.findMany({
+      where: {
+        participants: {
+          some: {
+            userId,
+          },
+        },
+        startDate: { lte: now },
+        endDate: { gte: now },
+      },
+      include: {
+        participants: {
+          where: {
+            userId,
+          },
+          select: {
+            currentProgress: true,
+            lastUpdated: true,
+          },
+        },
+      },
+      orderBy: { endDate: "asc" },
+    });
+
+    // Format the response to include challenge details and user progress
+    return challenges.map((challenge) => {
+      const userProgress = challenge.participants[0];
+      return {
+        id: challenge.id,
+        name: challenge.name,
+        type: challenge.type,
+        goalAmount: challenge.goalAmount,
+        startDate: challenge.startDate,
+        endDate: challenge.endDate,
+        currentProgress: userProgress?.currentProgress ?? 0,
+        lastUpdated: userProgress?.lastUpdated ?? new Date(),
+      };
+    });
+  }),
 });
