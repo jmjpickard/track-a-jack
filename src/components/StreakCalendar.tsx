@@ -213,14 +213,14 @@ export const StreakCalendar = ({ userId, className }: StreakCalendarProps) => {
                     "relative flex h-7 w-7 items-center justify-center rounded-full transition-colors",
                     hasActivity &&
                       isCurrentMonth &&
-                      "bg-green-500 hover:bg-green-600 text-white",
+                      "bg-green text-white hover:bg-green",
                     !hasActivity && "hover:bg-gray-100 dark:hover:bg-gray-800",
                   )}
                 >
                   {format(day, "d")}
                 </button>
                 {hasActivity && (
-                  <div className="bg-green-600 absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full" />
+                  <div className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-green" />
                 )}
               </div>
             );
