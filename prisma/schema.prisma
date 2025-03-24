@@ -62,17 +62,21 @@ model User {
     sessions           Session[]
     posts              Post[]
     Exercise           Exercise[]
-    
+
     // Friendship relationships
     sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
     receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
-    
+
     // Friends - self-referential many-to-many relationship
-    friendsOf              Friendship[]    @relation("UserFriends")
-    friends                Friendship[]    @relation("FriendsOfUser")
-    
+    friendsOf Friendship[] @relation("UserFriends")
+    friends   Friendship[] @relation("FriendsOfUser")
+
     // Feed posts
-    activityPosts          ActivityPost[]
+    activityPosts ActivityPost[]
+
+    // Streak information
+    streak       Streak?
+    Notification Notification[]
 }
 
 model VerificationToken {
@@ -101,7 +105,7 @@ model Exercise {
 
     createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
-    
+
     // Relation to activity post
     activityPost   ActivityPost? @relation(fields: [activityPostId], references: [id])
     activityPostId Int?
@@ -112,15 +116,15 @@ model FriendRequest {
     id        String   @id @default(cuid())
     status    String   @default("pending") // pending, accepted, rejected
     createdAt DateTime @default(now())
-    
+
     // Who sent the request
     senderId String
     sender   User   @relation("SentFriendRequests", fields: [senderId], references: [id])
-    
+
     // Who received the request
     receiverId String
     receiver   User   @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
-    
+
     @@unique([senderId, receiverId])
 }
 
@@ -128,14 +132,14 @@ model FriendRequest {
 model Friendship {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
-    
+
     // Two-way relationship
     userId String
     user   User   @relation("UserFriends", fields: [userId], references: [id])
-    
+
     friendId String
     friend   User   @relation("FriendsOfUser", fields: [friendId], references: [id])
-    
+
     @@unique([userId, friendId])
 }
 
@@ -144,14 +148,43 @@ model ActivityPost {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    
+
     // Group identifier (exercises posted within 3 hours are grouped)
     groupTime DateTime
-    
+
     // User who created the post
     userId String
     user   User   @relation(fields: [userId], references: [id])
-    
+
     // Exercises in this activity post
     exercises Exercise[]
+}
+
+// Model for tracking user activity streaks
+model Streak {
+    id               String   @id @default(cuid())
+    currentStreak    Int      @default(0)
+    longestStreak    Int      @default(0)
+    lastActivityDate DateTime @default(now())
+    streakStartDate  DateTime @default(now())
+    isFrozen         Boolean  @default(false)
+    freezesAvailable Int      @default(0)
+
+    // User who owns this streak
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Model for user notifications
+model Notification {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    type      String // e.g., STREAK_REMINDER, STREAK_MILESTONE_AT_RISK, etc.
+    title     String
+    content   String
+    isRead    Boolean  @default(false)
+
+    // User who receives this notification
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

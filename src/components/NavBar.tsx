@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserNav } from "./UserNav";
 import { useSession } from "next-auth/react";
-import { FriendRequestsDropdown } from "./FriendRequestsDropdown";
+import { CombinedNotificationsDropdown } from "./CombinedNotificationsDropdown";
 import { Users } from "lucide-react";
+import { StreakDisplay } from "./StreakDisplay";
 
 /**
  * Navigation bar component for the application
@@ -29,7 +30,8 @@ export const NavBar: React.FC = () => {
                   <Users className="h-5 w-5" />
                 </Button>
               </Link>
-              <FriendRequestsDropdown />
+              <CombinedNotificationsDropdown />
+              <StreakDisplay size="md" />
               <UserNav />
             </div>
           )}

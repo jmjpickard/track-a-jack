@@ -2,6 +2,12 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  getStreakData,
+  updateStreak,
+  awardStreakFreeze,
+  getActivityCalendarData,
+} from "~/server/services/streakService";
 
 export const userRouter = createTRPCRouter({
   checkUserConsent: protectedProcedure.query(async ({ ctx }) => {
@@ -411,4 +417,114 @@ export const userRouter = createTRPCRouter({
       };
     }
   }),
+
+  // Get user's streak information
+  getUserStreak: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const streak = await getStreakData(input.userId);
+      return streak;
+    }),
+
+  // Update user's streak based on new activity
+  updateUserStreak: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        activityDate: z.date().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const streak = await updateStreak(input.userId, input.activityDate);
+      return streak;
+    }),
+
+  // Award streak freezes to a user
+  awardStreakFreeze: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        count: z.number().min(1),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const streak = await awardStreakFreeze(input.userId, input.count);
+      return streak;
+    }),
+
+  // Get activity calendar data for a specific month
+  getActivityCalendar: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string().min(1),
+        month: z.number().min(1).max(12),
+        year: z.number().min(2020).max(2100),
+      }),
+    )
+    .query(async ({ input }) => {
+      const calendarData = await getActivityCalendarData(
+        input.userId,
+        input.month,
+        input.year,
+      );
+      return { activeDates: calendarData };
+    }),
+
+  // Get user's notifications
+  getUserNotifications: protectedProcedure.query(async ({ ctx }) => {
+    const { session } = ctx;
+    const userId = session.user.id;
+
+    const notifications = await ctx.db.notification.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return notifications;
+  }),
+
+  // Mark a notification as read
+  markNotificationAsRead: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { session } = ctx;
+      const userId = session.user.id;
+
+      const notification = await ctx.db.notification.findFirst({
+        where: {
+          id: input.id,
+          userId,
+        },
+      });
+
+      if (!notification) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Notification not found",
+        });
+      }
+
+      await ctx.db.notification.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          isRead: true,
+        },
+      });
+
+      return { success: true };
+    }),
 });

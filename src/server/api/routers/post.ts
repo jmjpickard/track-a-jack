@@ -5,6 +5,8 @@ import { getStartAndEndDate } from "~/components/WeekView";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { updateStreak } from "~/server/services/streakService";
+
 type ExerciseData = {
   _sum: { amount: number };
   type: string;
@@ -29,31 +31,8 @@ export const postRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
 
       try {
-        // Check for existing activity posts within the last 3 hours to group exercises
-        const threeHoursAgo = new Date();
-        threeHoursAgo.setHours(threeHoursAgo.getHours() - 3);
-
-        // Find or create an activity post group
-        let activityPost = await ctx.db.activityPost.findFirst({
-          where: {
-            userId: userId,
-            createdAt: { gte: threeHoursAgo },
-          },
-          orderBy: { createdAt: "desc" },
-        });
-
-        // If no recent activity post exists, create a new one
-        if (!activityPost) {
-          activityPost = await ctx.db.activityPost.create({
-            data: {
-              userId: userId,
-              groupTime: new Date(),
-            },
-          });
-        }
-
-        // Create the exercise and associate it with the activity post
-        const row = await ctx.db.exercise.create({
+        // Create exercise
+        const result = await ctx.db.exercise.create({
           data: {
             type: input.type,
             amount: input.amount,
@@ -61,16 +40,61 @@ export const postRouter = createTRPCRouter({
             week: input.week,
             year: input.year,
             createdById: userId,
-            activityPostId: activityPost.id,
           },
         });
 
-        return row;
+        // Get or create activity post group for today
+        const now = new Date();
+        const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+
+        // Find recent activity post
+        const recentPost = await ctx.db.activityPost.findFirst({
+          where: {
+            userId,
+            createdAt: {
+              gte: threeHoursAgo,
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
+
+        if (recentPost) {
+          // Add exercise to existing post
+          await ctx.db.exercise.update({
+            where: { id: result.id },
+            data: {
+              activityPostId: recentPost.id,
+            },
+          });
+        } else {
+          // Create new activity post
+          const post = await ctx.db.activityPost.create({
+            data: {
+              userId,
+              groupTime: now,
+            },
+          });
+
+          // Associate exercise with post
+          await ctx.db.exercise.update({
+            where: { id: result.id },
+            data: {
+              activityPostId: post.id,
+            },
+          });
+        }
+
+        // Update user's streak
+        await updateStreak(userId);
+
+        return result;
       } catch (error) {
-        console.error("Error in addExercise:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to add exercise",
+          cause: error,
         });
       }
     }),

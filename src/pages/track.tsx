@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { Leaderboard } from "~/components/Leaderboard";
 import { NavBar } from "~/components/NavBar";
+import { MiniStreakIndicator } from "~/components/MiniStreakIndicator";
 import { getWeekNumber } from "~/components/WeekView";
 
 export default function Track() {
@@ -34,6 +35,10 @@ export default function Track() {
         <div className="w-4/5 lg:w-3/5">
           {!isAuthLoading && (
             <div className="flex flex-col gap-7">
+              <div className="mb-4 flex items-center justify-between">
+                <h1 className="text-2xl font-bold">Activity Tracking</h1>
+                <MiniStreakIndicator />
+              </div>
               <div className="flex flex-col gap-7">
                 <h2 className="font-bold">Select week range</h2>
                 <div className="flex flex-row items-center gap-3">

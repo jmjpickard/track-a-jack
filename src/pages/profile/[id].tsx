@@ -20,9 +20,11 @@ import {
   Users,
   Clock,
   Activity,
+  Flame,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import { StreakDisplay } from "~/components/StreakDisplay";
+import { StreakCalendar } from "~/components/StreakCalendar";
 import { formatDate } from "~/utils/date";
 import { Separator } from "~/components/ui/separator";
 
@@ -178,6 +180,13 @@ export default function ProfilePage() {
                         </p>
                       )}
                     </div>
+                    <div className="mt-2 flex items-center">
+                      <StreakDisplay
+                        userId={userData.id}
+                        size="lg"
+                        className="mx-auto"
+                      />
+                    </div>
                     <div className="flex w-full justify-around">
                       <div className="flex flex-col items-center">
                         <div className="flex items-center gap-1">
@@ -220,11 +229,28 @@ export default function ProfilePage() {
               </Card>
 
               <Tabs defaultValue="activities" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="activities">
-                    Recent Activities
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger
+                    value="activities"
+                    className="flex items-center gap-2"
+                  >
+                    <Activity className="h-4 w-4" />
+                    <span className="hidden sm:inline">Recent Activities</span>
                   </TabsTrigger>
-                  <TabsTrigger value="stats">Stats</TabsTrigger>
+                  <TabsTrigger
+                    value="calendar"
+                    className="flex items-center gap-2"
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                    <span className="hidden sm:inline">Activity Calendar</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="stats"
+                    className="flex items-center gap-2"
+                  >
+                    <Flame className="h-4 w-4" />
+                    <span className="hidden sm:inline">Stats</span>
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="activities">
                   <div className="space-y-4 py-4">
@@ -241,6 +267,11 @@ export default function ProfilePage() {
                         </CardContent>
                       </Card>
                     )}
+                  </div>
+                </TabsContent>
+                <TabsContent value="calendar">
+                  <div className="my-4">
+                    <StreakCalendar userId={userData.id} className="w-full" />
                   </div>
                 </TabsContent>
                 <TabsContent value="stats">
@@ -284,11 +315,7 @@ export default function ProfilePage() {
               </Tabs>
             </>
           ) : (
-            <Card className="py-10 text-center">
-              <CardContent>
-                <p>User not found</p>
-              </CardContent>
-            </Card>
+            <div className="py-10 text-center">User not found</div>
           )}
         </div>
       </main>

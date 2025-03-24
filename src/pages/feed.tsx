@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { formatDate } from "~/utils/date";
+import { StreakDisplay } from "~/components/StreakDisplay";
 
 /**
  * Returns a formatted string and icon for the exercise type
@@ -91,11 +92,14 @@ const ActivityPost = ({ post }: { post: Post }) => {
             </Avatar>
           </Link>
           <div>
-            <Link href={`/profile/${userId}`}>
-              <CardTitle className="cursor-pointer text-base hover:underline">
-                {userName}
-              </CardTitle>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href={`/profile/${userId}`}>
+                <CardTitle className="cursor-pointer text-base hover:underline">
+                  {userName}
+                </CardTitle>
+              </Link>
+              <StreakDisplay userId={userId} size="sm" />
+            </div>
             <CardDescription className="flex items-center gap-1 text-xs">
               <CalendarDays className="h-3 w-3" /> {formatDate(createdAt)}
             </CardDescription>
