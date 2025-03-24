@@ -9,7 +9,7 @@ import {
  */
 export const setupScheduledJobs = (): void => {
   // Process streaks daily at midnight
-  cron.schedule("0 0 * * *", async () => {
+  cron.schedule("0 0 * * *", (async () => {
     console.log("Running daily streak processing...");
     try {
       await processDailyStreaks();
@@ -17,10 +17,10 @@ export const setupScheduledJobs = (): void => {
     } catch (error) {
       console.error("Error in daily streak processing:", error);
     }
-  });
+  }) as () => void);
 
   // Send streak reminders at 8 PM for users who haven't logged activity
-  cron.schedule("0 20 * * *", async () => {
+  cron.schedule("0 20 * * *", (async () => {
     console.log("Sending streak reminders...");
     try {
       await sendStreakReminders();
@@ -28,5 +28,5 @@ export const setupScheduledJobs = (): void => {
     } catch (error) {
       console.error("Error sending streak reminders:", error);
     }
-  });
+  }) as () => void);
 };

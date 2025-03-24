@@ -135,7 +135,7 @@ export default function ProfilePage() {
 
   const isLoading = profileQuery.isLoading || userActivityQuery.isLoading;
   const userData = profileQuery.data;
-  const userPosts = userActivityQuery.data?.posts || [];
+  const userPosts = userActivityQuery.data?.posts ?? [];
 
   return (
     <>

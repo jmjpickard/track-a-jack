@@ -38,7 +38,7 @@ export const updateStreak = async (
 
   // If more than one day gap, check if streak freeze is available
   if (streak.isFrozen || streak.freezesAvailable > 0) {
-    return await useStreakFreeze(streak, activityDate);
+    return await applyStreakFreeze(streak, activityDate);
   }
 
   // Otherwise reset streak
@@ -105,9 +105,9 @@ export const resetStreak = async (
 };
 
 /**
- * Applies a streak freeze to prevent streak reset
+ * Applies a streak freeze to maintain the current streak
  */
-export const useStreakFreeze = async (
+export const applyStreakFreeze = async (
   streak: Streak,
   activityDate: Date,
 ): Promise<Streak> => {

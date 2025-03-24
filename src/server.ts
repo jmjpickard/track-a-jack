@@ -11,10 +11,12 @@ app.prepare().then(() => {
   // Setup scheduled jobs for streaks
   setupScheduledJobs();
 
-  createServer((req, res) => {
-    const parsedUrl = parse(req.url || "/", true);
-    handle(req, res, parsedUrl);
-  }).listen(process.env.PORT || 3000, (() => {
-    console.log(`> Ready on http://localhost:${process.env.PORT || 3000}`);
-  }) as any);
+  const port = process.env.PORT ?? 3000;
+
+  createServer(async (req, res) => {
+    const parsedUrl = parse(req.url ?? "/", true);
+    await handle(req, res, parsedUrl);
+  }).listen(port, () => {
+    console.log(`> Ready on http://localhost:${port}`);
+  });
 });
